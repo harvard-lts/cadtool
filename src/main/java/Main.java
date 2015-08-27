@@ -5,9 +5,7 @@ import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDResources;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
-import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachment;
 import org.apache.pdfbox.preflight.PreflightDocument;
 import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
@@ -16,7 +14,6 @@ import org.apache.pdfbox.preflight.parser.PreflightParser;
 import javax.activation.FileDataSource;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map.Entry;
 
 public class Main {
     public static final String FILENAME = "C:\\Users\\Isaac Simmons\\Google Drive\\2D3DFormats\\Sample Files\\3D PDF Harvard\\DOC00175.pdf";
@@ -46,33 +43,40 @@ public class Main {
         }
     }
 
-//        //attachments are stored as part of the "names" dictionary in the document catalog
-//        PDDocumentNameDictionary names = new PDDocumentNameDictionary( fd.getDocumentCatalog() );
-//        names.setEmbeddedFiles( efTree );
-//        doc.getDocumentCatalog().setNames( names );
-//    }
-
     public static void main(String[] args) throws Exception {
         final PDDocument doc = PDDocument.load( FILENAME );
 
         final PDDocumentCatalog cat = doc.getDocumentCatalog();
 
-//        cat.getNames().
-
         for(COSObject o: doc.getDocument().getObjects()) {
             final COSBase item = o.getObject();
             if (item instanceof COSStream) {
-                System.out.println("Found a stream");
+//                System.out.println("Found a stream");
                 final COSStream stream = (COSStream) item;
-                for(Entry<COSName, COSBase> s: stream.entrySet()) {
-                    System.out.println(s.getKey().getName() + " " + s.getValue().toString());
+                if (stream.containsKey(COSName.TYPE) && "3D".equals(stream.getNameAsString(COSName.TYPE))) {
+                    if (stream.containsKey(COSName.SUBTYPE)) {
+                        System.out.println("Embedded 3D content found: " + stream.getNameAsString(COSName.SUBTYPE));
+                    } else {
+                        System.out.println("Embedded 3D content found: Unknown subtype");
+                    }
                 }
+                //TODO: other keys contain some viewport stuff? Wonder if there's anything interesting there for 2d stuff?
+//                for(Entry<COSName, COSBase> s: stream.entrySet()) {
+//                    System.out.println(s.getKey().getName() + " " + s.getValue().toString());
+//                }
+
+                //TODO: actually pull the stream itself and decode it?
+
             }
         }
 
+        //TODO: File attachments?
+
         for (PDPage page: ((List<PDPage>) cat.getAllPages())) {
             for (PDAnnotation annotation: page.getAnnotations()) {
-                System.out.println("annotation here: " + annotation.getSubtype());
+                if ("3D".equals(annotation.getSubtype())) {
+                    System.out.println("3D annotation present");
+                }
             }
         }
     }
