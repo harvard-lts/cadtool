@@ -12,6 +12,7 @@ import org.apache.pdfbox.preflight.PreflightDocument;
 import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
+import org.w3c.dom.Element;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -21,8 +22,10 @@ import java.util.List;
 /**
  * Created by Isaac Simmons on 8/27/2015.
  */
-public class PdfExtractor implements Extractor {
-    private final FilenameChecker filenameChecker = new FilenameChecker("pdf");
+public class PdfExtractor extends Extractor {
+    protected PdfExtractor() {
+        super("pdf", "pdf");
+    }
 
     public static void pdfbox_validate(DataSource ds, String filename) throws IOException {
         ValidationResult result;
@@ -48,7 +51,7 @@ public class PdfExtractor implements Extractor {
     }
 
     @Override
-    public void run(DataSource ds, String filename) throws IOException {
+    public void doRun(DataSource ds, String filename, Element result) throws IOException {
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentCatalog cat = doc.getDocumentCatalog();
@@ -86,10 +89,5 @@ public class PdfExtractor implements Extractor {
             }
         }
 //        pdfbox_validate(ds);
-    }
-
-    @Override
-    public boolean accepts(String filename) {
-        return filenameChecker.accepts(filename);
     }
 }
