@@ -1,8 +1,11 @@
 package edu.harvard.hul.ois.fits.cad;
 
+import edu.harvard.hul.ois.fits.cad.util.XmlUtil;
 import org.junit.Test;
+import org.w3c.dom.Element;
 
 import javax.activation.URLDataSource;
+import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.net.URL;
 
@@ -20,14 +23,16 @@ public class TestSampleFiles {
     };
 
     @Test
-    public void testPdfFiles() throws IOException {
+    public void testPdfFiles() throws IOException, TransformerException {
         System.out.println("RAN A TEST");
         final Extractor extractor = new PdfExtractor();
+        final Element results = XmlUtil.newResults();
         for (String filename: PDF_TEST_FILES) {
             assertTrue(extractor.accepts(filename));
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
-            extractor.run(new URLDataSource(resource), filename);
+            extractor.run(new URLDataSource(resource), filename, results);
         }
+        XmlUtil.printXml(results);
     }
 }

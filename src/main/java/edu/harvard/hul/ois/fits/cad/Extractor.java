@@ -49,22 +49,4 @@ public abstract class Extractor {
         root.appendChild(result);
         doRun(ds, filename, result);
     }
-
-    public final void run(DataSource ds, String filename) throws IOException {
-        //TODO: remove this, put it somewhere else
-        final Document doc;
-        try {
-            doc = XmlUtil.newDocument();
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
-        final Element results = doc.createElement("results");
-        doc.appendChild(results);
-        run(ds, filename, results);
-        try {
-            XmlUtil.printXml(doc);
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

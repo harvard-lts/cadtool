@@ -1,6 +1,7 @@
 package edu.harvard.hul.ois.fits.cad.util;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -28,8 +29,16 @@ public class XmlUtil {
 
     private XmlUtil() {}
 
-    public static Document newDocument() throws ParserConfigurationException {
-        return dbf.newDocumentBuilder().newDocument();
+    public static Element newResults() {
+        final Document doc;
+        try {
+            doc = dbf.newDocumentBuilder().newDocument();
+        } catch (ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
+        final Element results = doc.createElement("results");
+        doc.appendChild(results);
+        return results;
     }
 
     public static synchronized void printXml(Document doc) throws TransformerException, IOException {
@@ -46,5 +55,9 @@ public class XmlUtil {
 
         final StreamResult result = new StreamResult(System.out);  //TODO: take the stream result (or the output stream) as an argument?
         transformer.transform(source, result);
+    }
+
+    public static synchronized void printXml(Element element) throws TransformerException, IOException {
+        printXml(element.getOwnerDocument());
     }
 }
