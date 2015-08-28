@@ -18,7 +18,7 @@ import org.w3c.dom.Element;
 import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -29,25 +29,46 @@ public class PdfExtractor extends Extractor {
         super("pdf", "pdf");
     }
 
-    public static void pdfbox_validate(DataSource ds, String filename) throws IOException {
-        ValidationResult result;
+    public static void pdfbox_validate(DataSource ds, Element result) throws IOException {
+        final Document doc = result.getOwnerDocument();
+
+        ValidationResult validationResult;
         final PreflightParser parser = new PreflightParser(ds);
         try {
             parser.parse();
             PreflightDocument document = parser.getPreflightDocument();
             document.validate();
-            result = document.getResult();
+            validationResult = document.getResult();
             document.close();
         } catch (SyntaxValidationException e) {
-            result = e.getResult();
+            validationResult = e.getResult();
         }
 
-        if (result.isValid()) {
-            System.out.println("The file " + filename + " is a valid PDF/A-1b file");
-        } else {
-            System.out.println("The file " + filename + " is not valid, error(s) :");
-            for (ValidationResult.ValidationError error : result.getErrorsList()) {
-                System.out.println(error.getErrorCode() + " : " + error.getDetails());
+        final Map<String, Map<String, Integer>> validationErrors = new HashMap<>();
+        for (ValidationResult.ValidationError error : validationResult.getErrorsList()) {
+            final String errorCode = error.getErrorCode();
+            final String details = error.getDetails();
+
+            Map<String, Integer> match = validationErrors.get(errorCode);
+            if (match == null) {
+                match = new HashMap<>();
+                validationErrors.put(errorCode, match);
+            }
+
+            if (match.containsKey(details)) {
+                match.put(details, match.get(details) + 1);
+            } else {
+                match.put(details, 1);
+            }
+        }
+        for(Map.Entry<String, Map<String, Integer>> codeEntry: validationErrors.entrySet()) {
+            final String errorCode = codeEntry.getKey();
+            for(Map.Entry<String, Integer> detailEntry: codeEntry.getValue().entrySet()) {
+                final Element element = doc.createElement("pdf-a-validation-error");
+                element.setAttribute("code", errorCode);
+                element.setAttribute("details", detailEntry.getKey());
+                element.setAttribute("count", Integer.toString(detailEntry.getValue()));
+                result.appendChild(element);
             }
         }
     }
@@ -93,6 +114,6 @@ public class PdfExtractor extends Extractor {
             }
             result.appendChild(annotationElement);
         }
-//        pdfbox_validate(ds);
+        pdfbox_validate(ds, result);
     }
 }
