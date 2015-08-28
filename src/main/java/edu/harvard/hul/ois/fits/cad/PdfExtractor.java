@@ -80,11 +80,14 @@ public class PdfExtractor extends Extractor {
 
             final Element annotationElement = outputDoc.createElement("annotation-3d");
             annotationElement.setAttribute("present", "false");
-            pageloop: for (PDPage page: ((List<PDPage>) cat.getAllPages())) { //TODO: check this cast at each step
-                for (PDAnnotation annotation: page.getAnnotations()) {
-                    if ("3D".equals(annotation.getSubtype())) {
-                        annotationElement.setAttribute("present", "true");
-                        break pageloop;
+            pageloop: for (Object o: cat.getAllPages()) {
+                if (o instanceof PDPage) {
+                    final PDPage page = (PDPage) o;
+                    for (PDAnnotation annotation: page.getAnnotations()) {
+                        if ("3D".equals(annotation.getSubtype())) {
+                            annotationElement.setAttribute("present", "true");
+                            break pageloop;
+                        }
                     }
                 }
             }
