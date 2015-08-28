@@ -7,6 +7,7 @@ import org.xml.sax.SAXException;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -43,6 +44,9 @@ public class XmlUtil {
 
     public static synchronized void printXml(Document doc) throws TransformerException, IOException {
         final Transformer transformer = transformerFactory.newTransformer();
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
         final DOMSource source = new DOMSource(doc);
 //        try {
 //            final Schema schema = schemaFactory.newSchema(XmlUtil.class.getResource(XSD_FILENAME));
