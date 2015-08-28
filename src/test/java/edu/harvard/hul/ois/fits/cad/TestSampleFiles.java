@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestSampleFiles {
     public static final String[] PDF_TEST_FILES = new String[]{
@@ -19,17 +20,14 @@ public class TestSampleFiles {
     };
 
     @Test
-    public void testPdfFiles() {
+    public void testPdfFiles() throws IOException {
         System.out.println("RAN A TEST");
-        final Main main = new Main();
+        final Extractor extractor = new PdfExtractor();
         for (String filename: PDF_TEST_FILES) {
+            assertTrue(extractor.accepts(filename));
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
-            try {
-                main.runPdf(new URLDataSource(resource));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            extractor.run(new URLDataSource(resource), filename);
         }
     }
 }
