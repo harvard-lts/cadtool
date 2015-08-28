@@ -80,7 +80,7 @@ public class PdfExtractor extends Extractor {
 
             //TODO: File attachments?
 
-            for (PDPage page: ((List<PDPage>) cat.getAllPages())) {
+            for (PDPage page: ((List<PDPage>) cat.getAllPages())) { //TODO: check this cast at each step
                 for (PDAnnotation annotation: page.getAnnotations()) {
                     if ("3D".equals(annotation.getSubtype())) {
                         System.out.println("3D annotation present");
