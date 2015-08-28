@@ -12,12 +12,14 @@ import org.apache.pdfbox.preflight.PreflightDocument;
 import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Isaac Simmons on 8/27/2015.
@@ -52,6 +54,8 @@ public class PdfExtractor extends Extractor {
 
     @Override
     public void doRun(DataSource ds, String filename, Element result) throws IOException {
+        final Document outputDoc = result.getOwnerDocument();
+
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentCatalog cat = doc.getDocumentCatalog();
@@ -59,34 +63,32 @@ public class PdfExtractor extends Extractor {
             for(COSObject o: doc.getDocument().getObjects()) {
                 final COSBase item = o.getObject();
                 if (item instanceof COSStream) {
-//                System.out.println("Found a stream");
                     final COSStream stream = (COSStream) item;
                     if (stream.containsKey(COSName.TYPE) && "3D".equals(stream.getNameAsString(COSName.TYPE))) {
+                        final Element streamElement = outputDoc.createElement("embedded-3d-content");
                         if (stream.containsKey(COSName.SUBTYPE)) {
-                            System.out.println("Embedded 3D content found: " + stream.getNameAsString(COSName.SUBTYPE));
-                        } else {
-                            System.out.println("Embedded 3D content found: Unknown subtype");
+                            streamElement.setAttribute("type", stream.getNameAsString(COSName.SUBTYPE));
                         }
+                        streamElement.setAttribute("bytes", Long.toString(stream.getFilteredLength()));
+                        result.appendChild(streamElement);
+                        //TODO: actually pull the stream itself and decode it?
                     }
-                    //TODO: other keys contain some viewport stuff? Wonder if there's anything interesting there for 2d stuff?
-//                for(Entry<COSName, COSBase> s: stream.entrySet()) {
-//                    System.out.println(s.getKey().getName() + " " + s.getValue().toString());
-//                }
-
-                    //TODO: actually pull the stream itself and decode it?
-
                 }
             }
 
             //TODO: File attachments?
 
-            for (PDPage page: ((List<PDPage>) cat.getAllPages())) { //TODO: check this cast at each step
+            final Element annotationElement = outputDoc.createElement("annotation-3d");
+            annotationElement.setAttribute("present", "false");
+            pageloop: for (PDPage page: ((List<PDPage>) cat.getAllPages())) { //TODO: check this cast at each step
                 for (PDAnnotation annotation: page.getAnnotations()) {
                     if ("3D".equals(annotation.getSubtype())) {
-                        System.out.println("3D annotation present");
+                        annotationElement.setAttribute("present", "true");
+                        break pageloop;
                     }
                 }
             }
+            result.appendChild(annotationElement);
         }
 //        pdfbox_validate(ds);
     }
