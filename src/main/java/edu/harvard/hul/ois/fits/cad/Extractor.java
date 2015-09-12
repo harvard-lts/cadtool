@@ -44,4 +44,8 @@ public abstract class Extractor {
         doRun(ds, filename, result);
         return result;
     }
+
+    public String getName() {
+        return name;
+    }
 }
