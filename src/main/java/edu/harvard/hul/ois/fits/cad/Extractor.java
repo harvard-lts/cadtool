@@ -1,12 +1,8 @@
 package edu.harvard.hul.ois.fits.cad;
 
-import edu.harvard.hul.ois.fits.cad.util.XmlUtil;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import javax.activation.DataSource;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
