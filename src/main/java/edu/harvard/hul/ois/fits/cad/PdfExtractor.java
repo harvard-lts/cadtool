@@ -12,8 +12,7 @@ import org.apache.pdfbox.preflight.PreflightDocument;
 import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -30,8 +29,6 @@ public class PdfExtractor extends Extractor {
     }
 
     public static void pdfbox_validate(DataSource ds, Element result) throws IOException {
-        final Document doc = result.getOwnerDocument();
-
         ValidationResult validationResult;
         final PreflightParser parser = new PreflightParser(ds);
         try {
@@ -64,19 +61,17 @@ public class PdfExtractor extends Extractor {
         for(Map.Entry<String, Map<String, Integer>> codeEntry: validationErrors.entrySet()) {
             final String errorCode = codeEntry.getKey();
             for(Map.Entry<String, Integer> detailEntry: codeEntry.getValue().entrySet()) {
-                final Element element = doc.createElement("pdf-a-validation-error");
+                final Element element = new Element("pdf-a-validation-error");
                 element.setAttribute("code", errorCode);
                 element.setAttribute("details", detailEntry.getKey());
                 element.setAttribute("count", Integer.toString(detailEntry.getValue()));
-                result.appendChild(element);
+                result.addContent(element);
             }
         }
     }
 
     @Override
     public void doRun(DataSource ds, String filename, Element result) throws IOException {
-        final Document outputDoc = result.getOwnerDocument();
-
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentCatalog cat = doc.getDocumentCatalog();
@@ -86,12 +81,12 @@ public class PdfExtractor extends Extractor {
                 if (item instanceof COSStream) {
                     final COSStream stream = (COSStream) item;
                     if (stream.containsKey(COSName.TYPE) && "3D".equals(stream.getNameAsString(COSName.TYPE))) {
-                        final Element streamElement = outputDoc.createElement("embedded-3d-content");
+                        final Element streamElement = new Element("embedded-3d-content");
                         if (stream.containsKey(COSName.SUBTYPE)) {
                             streamElement.setAttribute("type", stream.getNameAsString(COSName.SUBTYPE));
                         }
                         streamElement.setAttribute("bytes", Long.toString(stream.getFilteredLength()));
-                        result.appendChild(streamElement);
+                        result.addContent(streamElement);
                         //TODO: actually pull the stream itself and decode it?
                     }
                 }
@@ -99,7 +94,7 @@ public class PdfExtractor extends Extractor {
 
             //TODO: File attachments?
 
-            final Element annotationElement = outputDoc.createElement("annotation-3d");
+            final Element annotationElement = new Element("annotation-3d");
             annotationElement.setAttribute("present", "false");
             pageloop: for (Object o: cat.getAllPages()) {
                 if (o instanceof PDPage) {
@@ -112,7 +107,7 @@ public class PdfExtractor extends Extractor {
                     }
                 }
             }
-            result.appendChild(annotationElement);
+            result.addContent(annotationElement);
         }
         pdfbox_validate(ds, result);
     }

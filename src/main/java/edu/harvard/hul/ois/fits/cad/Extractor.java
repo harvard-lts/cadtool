@@ -1,6 +1,6 @@
 package edu.harvard.hul.ois.fits.cad;
 
-import org.w3c.dom.Element;
+import org.jdom.Element;
 
 import javax.activation.DataSource;
 import java.io.IOException;
@@ -35,14 +35,13 @@ public abstract class Extractor {
         return false;
     }
 
-
     protected abstract void doRun(DataSource ds, String filename, Element result) throws IOException;
 
     public final void run(DataSource ds, String filename, Element root) throws IOException {
-        final Element result = root.getOwnerDocument().createElement("result");
+        final Element result = new Element("result");
         result.setAttribute("extractor", name);
         result.setAttribute("file", filename);
-        root.appendChild(result);
+        root.addContent(result);
         doRun(ds, filename, result);
     }
 }

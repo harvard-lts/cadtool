@@ -1,13 +1,11 @@
 package edu.harvard.hul.ois.fits.cad;
 
-import edu.harvard.hul.ois.fits.cad.util.XmlUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
@@ -15,6 +13,7 @@ import java.util.Set;
 
 public class Main {
     private final Set<Extractor> extractors;
+    private static final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
 
     public Main() {
         final Set<Extractor> temp = new HashSet<>();
@@ -24,7 +23,7 @@ public class Main {
 
     public void run(DataSource ds, String filename) throws IOException {
         boolean anyMatch = false;
-        final Element results = XmlUtil.newResults();
+        final Element results = new Element("results");
 
         for(Extractor extractor: extractors) {
             if (extractor.accepts(filename)) {
@@ -33,11 +32,7 @@ public class Main {
             }
         }
 
-        try {
-            XmlUtil.printXml(results.getOwnerDocument());
-        } catch (TransformerException e) {
-            throw new RuntimeException(e);
-        }
+        out.output(results, System.out);
 
         if (!anyMatch) {
             System.out.println("Warning: No metadata extractors matched for file " + filename);
