@@ -37,11 +37,11 @@ public abstract class Extractor {
 
     protected abstract void doRun(DataSource ds, String filename, Element result) throws IOException;
 
-    public final void run(DataSource ds, String filename, Element root) throws IOException {
+    public final Element run(DataSource ds, String filename) throws IOException {
         final Element result = new Element("result");
         result.setAttribute("extractor", name);
         result.setAttribute("file", filename);
-        root.addContent(result);
         doRun(ds, filename, result);
+        return result;
     }
 }

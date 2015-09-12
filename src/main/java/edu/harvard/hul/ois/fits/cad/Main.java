@@ -22,21 +22,15 @@ public class Main {
     }
 
     public void run(DataSource ds, String filename) throws IOException {
-        boolean anyMatch = false;
         final Element results = new Element("results");
 
         for(Extractor extractor: extractors) {
             if (extractor.accepts(filename)) {
-                anyMatch = true;
-                extractor.run(ds, filename, results);
+                results.addContent(extractor.run(ds, filename));
             }
         }
 
         out.output(results, System.out);
-
-        if (!anyMatch) {
-            System.out.println("Warning: No metadata extractors matched for file " + filename);
-        }
     }
 
     public static void main(String[] args) {

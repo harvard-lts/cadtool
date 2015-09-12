@@ -33,7 +33,7 @@ public class TestSampleFiles {
             assertTrue(extractor.accepts(filename));
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
-            extractor.run(new URLDataSource(resource), filename, results);
+            results.addContent(extractor.run(new URLDataSource(resource), filename));
         }
         out.output(results, System.out);
     }
