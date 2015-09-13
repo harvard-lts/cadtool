@@ -31,14 +31,20 @@ public class PdfExtractor extends CadExtractor {
     public static void pdfbox_validate(DataSource ds, Element result) throws IOException {
         ValidationResult validationResult;
         final PreflightParser parser = new PreflightParser(ds);
+        PreflightDocument document = null;
+
         try {
             parser.parse();
-            PreflightDocument document = parser.getPreflightDocument();
+            document = parser.getPreflightDocument();
             document.validate();
             validationResult = document.getResult();
             document.close();
         } catch (SyntaxValidationException e) {
             validationResult = e.getResult();
+        } finally {
+            if (document != null) {
+                document.close();
+            }
         }
 
         final Map<String, Map<String, Integer>> validationErrors = new HashMap<>();
@@ -108,6 +114,7 @@ public class PdfExtractor extends CadExtractor {
                 }
             }
             result.addContent(annotationElement);
+            doc.close();
         }
         pdfbox_validate(ds, result);
     }
