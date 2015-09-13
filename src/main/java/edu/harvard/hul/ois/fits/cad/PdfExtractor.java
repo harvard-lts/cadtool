@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public class PdfExtractor extends CadExtractor {
     protected PdfExtractor() {
-        super("pdf", "Portable Document Format", "application/pdf", "pdf");
+        super("pdf", "Portable Document Format", "application/pdf", ".pdf");
     }
 
     public static void pdfbox_validate(DataSource ds, Element result) throws IOException {
