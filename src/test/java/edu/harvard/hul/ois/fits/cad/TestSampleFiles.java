@@ -26,13 +26,20 @@ public class TestSampleFiles {
             "/PDF3D_COMSOL_EigenvalueAnalysisOfACrankshaft.pdf"
     };
 
+    public static final String[] DWG_TEST_FILES = new String[]{
+            "/civil_example-imperial.dwg",
+            "/Figure_A04.dwg",
+            "/Pump_cover.dwg",
+            "/visualization_-_sun_and_sky_demo.dwg"
+    };
+
     public TestSampleFiles() throws FitsToolException {
         cadTool = new CadTool();
     }
 
     @Test
     public void testPdfFiles() throws IOException, FitsToolException {
-        final Element results = new Element("test-results");
+        final Element results = new Element("pdf-test-results");
         for (String filename: PDF_TEST_FILES) {
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
@@ -41,4 +48,18 @@ public class TestSampleFiles {
         }
         out.output(results, System.out);
     }
+
+    @Test
+    public void testDwgFiles() throws IOException, FitsToolException {
+        final Element results = new Element("dwg-test-results");
+        for (String filename: DWG_TEST_FILES) {
+            final URL resource = getClass().getResource(filename);
+            assertNotNull(resource);
+            final ToolOutput output = cadTool.extractInfo(filename, new URLDataSource(resource));
+            results.addContent(output.getToolOutput().detachRootElement());
+        }
+        out.output(results, System.out);
+    }
 }
+
+

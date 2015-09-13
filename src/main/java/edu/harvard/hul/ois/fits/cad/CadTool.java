@@ -36,7 +36,7 @@ public class CadTool extends ToolBase {
         setName(CadTool.NAME);
         final Map<String, CadExtractor> temp = new HashMap<>();
         final CadExtractor[] allExtractors = new CadExtractor[] {
-//                new DwgExtractor(),
+                new DwgExtractor(),
 //                new DxfExtractor(),
 //                new X3DExtractor(),
                 new PdfExtractor()
