@@ -15,7 +15,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class TestSampleFiles {
     private static final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-    private final Main main;
+    private final CadTool cadTool;
 
     public static final String[] PDF_TEST_FILES = new String[]{
             "/1344464123.pdf",
@@ -27,7 +27,7 @@ public class TestSampleFiles {
     };
 
     public TestSampleFiles() throws FitsToolException {
-        main = new Main();
+        cadTool = new CadTool();
     }
 
     @Test
@@ -37,7 +37,7 @@ public class TestSampleFiles {
         for (String filename: PDF_TEST_FILES) {
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
-            final ToolOutput output = main.extractInfo(filename, new URLDataSource(resource));
+            final ToolOutput output = cadTool.extractInfo(filename, new URLDataSource(resource));
             results.addContent(output.getToolOutput().detachRootElement());
         }
         out.output(results, System.out);

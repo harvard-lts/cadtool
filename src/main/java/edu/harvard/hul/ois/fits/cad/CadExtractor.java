@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class Extractor {
+public abstract class CadExtractor {
     private final Set<String> extensions;
     private final String name;
 
-    protected Extractor(String name, String... extensions) {
+    protected CadExtractor(String name, String... extensions) {
         this.name = name;
 
         //Make sure every extension is lowercase and prefixed by a period

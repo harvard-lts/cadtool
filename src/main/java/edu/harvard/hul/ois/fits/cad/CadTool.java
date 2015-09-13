@@ -19,20 +19,20 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
-public class Main extends ToolBase {
+public class CadTool extends ToolBase {
     private static final String CADTOOL_XSLT_RESOURCE = "/cadtool_to_fits.xslt";
 
-    private final Map<String, Extractor> extractors;
+    private final Map<String, CadExtractor> extractors;
     private final XSLTransformer transformer;
     private boolean enabled = true;
 
-    public Main() throws FitsToolException {
+    public CadTool() throws FitsToolException {
         super();
-        final Map<String, Extractor> temp = new HashMap<>();
-        final Extractor[] allExtractors = new Extractor[] {
+        final Map<String, CadExtractor> temp = new HashMap<>();
+        final CadExtractor[] allExtractors = new CadExtractor[] {
                 new PdfExtractor()
         };
-        for (Extractor extractor: allExtractors) {
+        for (CadExtractor extractor: allExtractors) {
             for(String extension: extractor.getExtensions()) {
                 if (temp.containsKey(extension)) {
                     throw new FitsToolException("Tried to register multiple cad extractors (" + extractor.getName()
@@ -78,7 +78,7 @@ public class Main extends ToolBase {
         if (! extractors.containsKey(extension)) {
             throw new FitsToolException("cadtool invoked on file with unsupported extension: " + filename);
         }
-        final Extractor extractor = extractors.get(extension);
+        final CadExtractor extractor = extractors.get(extension);
         final Element results;
 
         try {
@@ -115,8 +115,8 @@ public class Main extends ToolBase {
     public static void main(String[] args) throws FitsToolException, IOException {
         //TODO: check args, print usage message
         final File file = new File(args[0]);
-        final Main main = new Main();
-        final ToolOutput results = main.extractInfo(file);
+        final CadTool cadTool = new CadTool();
+        final ToolOutput results = cadTool.extractInfo(file);
         new XMLOutputter(Format.getPrettyFormat()).output(results.getToolOutput(), System.out);
     }
 }

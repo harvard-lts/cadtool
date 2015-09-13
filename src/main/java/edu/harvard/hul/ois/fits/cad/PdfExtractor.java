@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Created by Isaac Simmons on 8/27/2015.
  */
-public class PdfExtractor extends Extractor {
+public class PdfExtractor extends CadExtractor {
     protected PdfExtractor() {
         super("pdf", "pdf");
     }
