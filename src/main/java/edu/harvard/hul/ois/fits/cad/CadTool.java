@@ -36,13 +36,22 @@ public class CadTool extends ToolBase {
         setName(CadTool.NAME);
         final Map<String, CadExtractor> temp = new HashMap<>();
         final CadExtractor[] allExtractors = new CadExtractor[] {
+//                new DwgExtractor(),
+//                new DxfExtractor(),
+//                new X3DExtractor(),
                 new PdfExtractor()
         };
+        final Set<String> extractorNames = new HashSet<>();
         for (CadExtractor extractor: allExtractors) {
+            if (! extractorNames.add(extractor.getName())) {
+                throw new FitsToolException("Tried to initialize with multiple cad extractors with same name: " +
+                        extractor.getName());
+            }
             for(String extension: extractor.getExtensions()) {
                 if (temp.containsKey(extension)) {
-                    throw new FitsToolException("Tried to register multiple cad extractors (" + extractor.getName()
-                            + ", " + temp.get(extension).getName() + ") for extension \"" + extension + "\"");
+                    throw new FitsToolException("Tried to initialize with multiple cad extractors (" +
+                            extractor.getName() + ", " + temp.get(extension).getName() + ") for extension \"" +
+                            extension + "\"");
                 }
                 temp.put(extension, extractor);
             }
