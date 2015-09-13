@@ -1,5 +1,7 @@
 package edu.harvard.hul.ois.fits.cad;
 
+import edu.harvard.hul.ois.fits.exceptions.FitsToolException;
+import edu.harvard.hul.ois.fits.tools.ToolOutput;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -10,10 +12,10 @@ import java.io.IOException;
 import java.net.URL;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class TestSampleFiles {
     private static final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
+    private final Main main;
 
     public static final String[] PDF_TEST_FILES = new String[]{
             "/1344464123.pdf",
@@ -24,16 +26,19 @@ public class TestSampleFiles {
             "/PDF3D_COMSOL_EigenvalueAnalysisOfACrankshaft.pdf"
     };
 
+    public TestSampleFiles() throws FitsToolException {
+        main = new Main();
+    }
+
     @Test
-    public void testPdfFiles() throws IOException {
+    public void testPdfFiles() throws IOException, FitsToolException {
         System.out.println("RAN A TEST");
-        final Extractor extractor = new PdfExtractor();
-        final Element results = new Element("results");
+        final Element results = new Element("test-results");
         for (String filename: PDF_TEST_FILES) {
-            assertTrue(extractor.accepts(filename));
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
-            results.addContent(extractor.run(new URLDataSource(resource), filename));
+            final ToolOutput output = main.extractInfo(filename, new URLDataSource(resource));
+            results.addContent(output.getToolOutput().detachRootElement());
         }
         out.output(results, System.out);
     }
