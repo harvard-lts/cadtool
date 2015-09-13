@@ -5,44 +5,68 @@ import edu.harvard.hul.ois.fits.exceptions.FitsToolException;
 import edu.harvard.hul.ois.fits.mapping.FitsXmlMapper;
 import edu.harvard.hul.ois.fits.tools.ToolBase;
 import edu.harvard.hul.ois.fits.tools.ToolOutput;
-import net.sf.saxon.Configuration;
-import net.sf.saxon.TransformerFactoryImpl;
-import net.sf.saxon.jdom.DocumentWrapper;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.input.DOMBuilder;
-import org.jdom.input.SAXBuilder;
-import org.jdom.output.DOMOutputter;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
-import org.jdom.transform.JDOMResult;
+import org.jdom.transform.XSLTransformException;
+import org.jdom.transform.XSLTransformer;
 
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.*;
 
 public class Main extends ToolBase {
-    private final Map<String, Extractor> extractors;
-    private static final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
-    private boolean enabled = true;
     private static final String CADTOOL_XSLT_RESOURCE = "/cadtool_to_fits.xslt";
 
-    public Document transform(InputStream xslt, Document input) throws FitsToolException, JDOMException, TransformerException {
-        final DOMSource source = new DOMSource(new DOMOutputter().output(input));
+    private final Map<String, Extractor> extractors;
+    private final XSLTransformer transformer;
+    private boolean enabled = true;
 
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer(new StreamSource(xslt));
-        DOMResult result = new DOMResult();
-        transformer.transform(source, result);
-        return new DOMBuilder().build((org.w3c.dom.Document) result.getNode());
+    public Main() throws FitsToolException {
+        super();
+        final Map<String, Extractor> temp = new HashMap<>();
+        final Extractor[] allExtractors = new Extractor[] {
+                new PdfExtractor()
+        };
+        for (Extractor extractor: allExtractors) {
+            for(String extension: extractor.getExtensions()) {
+                if (temp.containsKey(extension)) {
+                    throw new FitsToolException("Tried to register multiple cad extractors (" + extractor.getName()
+                            + ", " + temp.get(extension).getName() + ") for extension \"" + extension + "\"");
+                }
+                temp.put(extension, extractor);
+            }
+        }
+        extractors = Collections.unmodifiableMap(temp);
+
+        try {
+            this.transformer = new XSLTransformer(getClass().getResourceAsStream(CADTOOL_XSLT_RESOURCE));
+        } catch (XSLTransformException e) {
+            throw new FitsToolException("Error initializing JDOM XSL Transformer");
+        }
+
+        ///////////////UGLY HACK/////////////////
+        //If we are running outside of FITS, we need to fake a few static values that normally get initialized
+        //in its constructor
+        if (Fits.FITS_XML == null && Fits.mapper == null) {
+            try {
+                //FitsXmlMapper constructor expects to find the fits_xml_map.xml file on the filesystem
+                //Pointed at by the Fits.FITS_XML variable
+                final String tempDir = System.getProperty("java.io.tmpdir");
+                final File file = new File(tempDir, "fits_xml_map.xml");
+                if (!file.isFile()) {
+                    Files.copy(getClass().getResourceAsStream("/fits_xml_map.xml"), file.toPath());
+                }
+                Fits.FITS_XML = tempDir;
+                Fits.mapper = new FitsXmlMapper();
+            } catch (JDOMException | IOException e) {
+                throw new FitsToolException("Error initializing static FITS values for standalone use", e);
+            }
+        }
     }
 
     public ToolOutput extractInfo(String filename, DataSource dataSource) throws FitsToolException {
@@ -64,26 +88,13 @@ public class Main extends ToolBase {
         }
 
         final Document toolOutput = new Document(results);
-//        final Document fitsOutput = new Document(new Element("fits-placeholder"));
-        //TODO: write a cadtool to fits XSLT transform and use that here
         final Document fitsOutput;
         try {
-            fitsOutput = transform(getClass().getResourceAsStream(CADTOOL_XSLT_RESOURCE), toolOutput);
+            fitsOutput = transformer.transform(toolOutput);
         } catch (JDOMException e) {
-            e.printStackTrace();
-            return null;
-        } catch (TransformerException e) {
-            e.printStackTrace();
-            return null;
+            throw new FitsToolException("Error transforming tool output to fits output", e);
         }
-        final ToolOutput output = new ToolOutput(this, fitsOutput, toolOutput);
-//        output.addFileIdentity(new ToolIdentity("mime", "format", new ToolInfo("name", "version", "date")));
-        try {
-            out.output(output.getFitsXml(), System.out);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return output;
+        return new ToolOutput(this, fitsOutput, toolOutput);
     }
 
     @Override
@@ -101,42 +112,11 @@ public class Main extends ToolBase {
         this.enabled = enabled;
     }
 
-    public Main() throws FitsToolException {
-        super();
-        final Map<String, Extractor> temp = new HashMap<>();
-        final Extractor[] allExtractors = new Extractor[] {
-                new PdfExtractor()
-        };
-        for (Extractor extractor: allExtractors) {
-            for(String extension: extractor.getExtensions()) {
-                if (temp.containsKey(extension)) {
-                   throw new FitsToolException("Tried to register multiple cad extractors (" + extractor.getName()
-                           + ", " + temp.get(extension).getName() + ") for extension \"" + extension + "\"");
-                }
-                temp.put(extension, extractor);
-            }
-        }
-        extractors = Collections.unmodifiableMap(temp);
-        if (Fits.FITS_XML == null && Fits.mapper == null) {
-            try {
-                final String tempDir = System.getProperty("java.io.tmpdir");
-                final File file = new File(tempDir, "fits_xml_map.xml");
-                if (!file.isFile()) {
-                    Files.copy(getClass().getResourceAsStream("/fits_xml_map.xml"), file.toPath());
-                }
-                Fits.FITS_XML = tempDir;
-                Fits.mapper = new FitsXmlMapper();
-            } catch (JDOMException | IOException e) {
-                throw new FitsToolException("damn", e);
-            }
-        }
-    }
-
     public static void main(String[] args) throws FitsToolException, IOException {
         //TODO: check args, print usage message
         final File file = new File(args[0]);
         final Main main = new Main();
         final ToolOutput results = main.extractInfo(file);
-        out.output(results.getToolOutput(), System.out);
+        new XMLOutputter(Format.getPrettyFormat()).output(results.getToolOutput(), System.out);
     }
 }
