@@ -33,6 +33,15 @@ public class TestSampleFiles {
             "/visualization_-_sun_and_sky_demo.dwg"
     };
 
+    public static final String[] X3D_TEST_FILES = new String[]{
+            "/5000points.x3d",
+            "/extents.x3d",
+            "/HelloWorld.x3d",
+            "/NonplanarPolygons.x3d",
+            "/test-ccwsolid.x3d",
+            "/TriangleStripSet.x3d"
+    };
+
     public TestSampleFiles() throws FitsToolException {
         cadTool = new CadTool();
     }
@@ -53,6 +62,18 @@ public class TestSampleFiles {
     public void testDwgFiles() throws IOException, FitsToolException {
         final Element results = new Element("dwg-test-results");
         for (String filename: DWG_TEST_FILES) {
+            final URL resource = getClass().getResource(filename);
+            assertNotNull(resource);
+            final ToolOutput output = cadTool.extractInfo(filename, new URLDataSource(resource));
+            results.addContent(output.getToolOutput().detachRootElement());
+        }
+        out.output(results, System.out);
+    }
+
+    @Test
+    public void testX3dFiles() throws IOException, FitsToolException {
+        final Element results = new Element("x3d-test-results");
+        for (String filename: X3D_TEST_FILES) {
             final URL resource = getClass().getResource(filename);
             assertNotNull(resource);
             final ToolOutput output = cadTool.extractInfo(filename, new URLDataSource(resource));
