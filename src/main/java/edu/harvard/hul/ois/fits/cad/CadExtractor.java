@@ -9,11 +9,15 @@ import java.util.HashSet;
 import java.util.Set;
 
 public abstract class CadExtractor {
-    private final Set<String> extensions;
-    private final String name;
+    protected final Set<String> extensions;
+    protected final String name;
+    protected final String defaultFormat;
+    protected final String defaultMime;
 
-    protected CadExtractor(String name, String... extensions) {
+    protected CadExtractor(String name, String defaultFormat, String defaultMime, String... extensions) {
         this.name = name;
+        this.defaultFormat = defaultFormat;
+        this.defaultMime = defaultMime;
 
         //Make sure every extension is lowercase and prefixed by a period
         final Set<String> temp = new HashSet<>(extensions.length);
@@ -26,6 +30,14 @@ public abstract class CadExtractor {
             }
         }
         this.extensions = Collections.unmodifiableSet(temp);
+    }
+
+    public String getDefaultFormat() {
+        return defaultFormat;
+    }
+
+    public String getDefaultMime() {
+        return defaultMime;
     }
 
     public boolean accepts(String filename) {
