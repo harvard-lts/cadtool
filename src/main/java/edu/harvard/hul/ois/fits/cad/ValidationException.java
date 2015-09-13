@@ -1,0 +1,21 @@
+package edu.harvard.hul.ois.fits.cad;
+
+/**
+ * Created by Isaac Simmons on 9/13/2015.
+ */
+public class ValidationException extends Exception {
+    public ValidationException() {
+    }
+
+    public ValidationException(String message) {
+        super(message);
+    }
+
+    public ValidationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ValidationException(Throwable cause) {
+        super(cause);
+    }
+}

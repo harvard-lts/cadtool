@@ -100,7 +100,7 @@ public class CadTool extends ToolBase {
 
         try {
             results = extractor.run(dataSource, filename);
-        } catch (IOException e) {
+        } catch (IOException | ValidationException e) {
             throw new FitsToolException("Error running cad extractor " + extractor.getName() + " on " + filename, e);
         }
 

@@ -24,7 +24,9 @@ import java.util.Map;
  * Created by Isaac Simmons on 8/27/2015.
  */
 public class PdfExtractor extends CadExtractor {
-    protected PdfExtractor() {
+    private final MagicNumberValidator validator = MagicNumberValidator.string("%PDF");
+
+    public PdfExtractor() {
         super("pdf", "Portable Document Format", "application/pdf", ".pdf");
     }
 
@@ -77,7 +79,8 @@ public class PdfExtractor extends CadExtractor {
     }
 
     @Override
-    public void doRun(DataSource ds, String filename, Element result) throws IOException {
+    public void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
+        validator.validate(ds.getInputStream());
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentCatalog cat = doc.getDocumentCatalog();
