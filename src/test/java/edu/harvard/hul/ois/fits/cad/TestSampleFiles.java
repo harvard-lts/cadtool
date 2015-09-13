@@ -32,7 +32,6 @@ public class TestSampleFiles {
 
     @Test
     public void testPdfFiles() throws IOException, FitsToolException {
-        System.out.println("RAN A TEST");
         final Element results = new Element("test-results");
         for (String filename: PDF_TEST_FILES) {
             final URL resource = getClass().getResource(filename);
