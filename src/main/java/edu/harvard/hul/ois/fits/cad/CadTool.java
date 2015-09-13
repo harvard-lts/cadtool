@@ -2,8 +2,10 @@ package edu.harvard.hul.ois.fits.cad;
 
 import edu.harvard.hul.ois.fits.Fits;
 import edu.harvard.hul.ois.fits.exceptions.FitsToolException;
+import edu.harvard.hul.ois.fits.identity.ToolIdentity;
 import edu.harvard.hul.ois.fits.mapping.FitsXmlMapper;
 import edu.harvard.hul.ois.fits.tools.ToolBase;
+import edu.harvard.hul.ois.fits.tools.ToolInfo;
 import edu.harvard.hul.ois.fits.tools.ToolOutput;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -20,6 +22,9 @@ import java.nio.file.Files;
 import java.util.*;
 
 public class CadTool extends ToolBase {
+    public static final String VERSION = "0.1";
+    public static final String NAME = "cadtool";
+
     private static final String CADTOOL_XSLT_RESOURCE = "/cadtool_to_fits.xslt";
 
     private final Map<String, CadExtractor> extractors;
@@ -28,6 +33,7 @@ public class CadTool extends ToolBase {
 
     public CadTool() throws FitsToolException {
         super();
+        setName(CadTool.NAME);
         final Map<String, CadExtractor> temp = new HashMap<>();
         final CadExtractor[] allExtractors = new CadExtractor[] {
                 new PdfExtractor()
@@ -67,14 +73,16 @@ public class CadTool extends ToolBase {
                 throw new FitsToolException("Error initializing static FITS values for standalone use", e);
             }
         }
+        /////////////////////////////////////////
     }
 
     public ToolOutput extractInfo(String filename, DataSource dataSource) throws FitsToolException {
+        //TODO: this won't work for multi-part extensions (ie. blah.vrml.xml)
         final int lastPeriod = filename.lastIndexOf('.');
         if (lastPeriod == -1) {
             throw new FitsToolException("cadtool invoked on file with no extension: " + filename);
         }
-        final String extension = filename.substring(lastPeriod);
+        final String extension = filename.substring(lastPeriod).toLowerCase();
         if (! extractors.containsKey(extension)) {
             throw new FitsToolException("cadtool invoked on file with unsupported extension: " + filename);
         }
@@ -94,7 +102,14 @@ public class CadTool extends ToolBase {
         } catch (JDOMException e) {
             throw new FitsToolException("Error transforming tool output to fits output", e);
         }
-        return new ToolOutput(this, fitsOutput, toolOutput);
+
+        final ToolOutput result = new ToolOutput(this, fitsOutput, toolOutput);
+
+        //Add identification based on extractor
+        //Any extractor given an incorrect file should have thrown an exception, so if we get here, we know it passed
+        result.addFileIdentity(new ToolIdentity(extractor.getDefaultMime(), extractor.getDefaultFormat(), new ToolInfo(CadTool.NAME, CadTool.VERSION, null)));
+
+        return result;
     }
 
     @Override
