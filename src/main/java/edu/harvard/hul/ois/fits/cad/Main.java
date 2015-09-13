@@ -8,32 +8,34 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
-import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class Main extends ToolBase {
-    private final Set<Extractor> extractors;
+    private final Map<String, Extractor> extractors;
     private static final XMLOutputter out = new XMLOutputter(Format.getPrettyFormat());
     private boolean enabled = true;
 
     @Override
     public ToolOutput extractInfo(File file) throws FitsToolException {
-        final Element results = new Element("cad-tool-output");
+        final String filename = file.getName();
+        final int lastPeriod = filename.lastIndexOf('.');
+        if (lastPeriod == -1) {
+            throw new FitsToolException("cadtool invoked on file with no extension: " + filename);
+        }
+        final String extension = filename.substring(lastPeriod);
+        if (! extractors.containsKey(extension)) {
+            throw new FitsToolException("cadtool invoked on file with unsupported extension: " + filename);
+        }
+        final Extractor extractor = extractors.get(extension);
+        final Element results;
 
-        for(Extractor extractor: extractors) {
-            if (extractor.accepts(file.getName())) {
-                final DataSource in = new FileDataSource(file);
-                try {
-                    results.addContent(extractor.run(in, file.getName()));
-                } catch (IOException e) {
-                    throw new FitsToolException("Error running cadtool extractor " + extractor.getName(), e);
-                }
-            }
+        try {
+            results = extractor.run(new FileDataSource(file), filename);
+        } catch (IOException e) {
+            throw new FitsToolException("Error running cad extractor " + extractor.getName() + " on " + filename, e);
         }
 
         final Document toolOutput = new Document(results);
@@ -56,9 +58,20 @@ public class Main extends ToolBase {
 
     public Main() throws FitsToolException {
         super();
-        final Set<Extractor> temp = new HashSet<>();
-        temp.add(new PdfExtractor());
-        extractors = Collections.unmodifiableSet(temp);
+        final Map<String, Extractor> temp = new HashMap<>();
+        final Extractor[] allExtractors = new Extractor[] {
+                new PdfExtractor()
+        };
+        for (Extractor extractor: allExtractors) {
+            for(String extension: extractor.getExtensions()) {
+                if (temp.containsKey(extension)) {
+                   throw new FitsToolException("Tried to register multiple cad extractors (" + extractor.getName()
+                           + ", " + temp.get(extension).getName() + ") for extension \"" + extension + "\"");
+                }
+                temp.put(extension, extractor);
+            }
+        }
+        extractors = Collections.unmodifiableMap(temp);
     }
 
     public static void main(String[] args) throws FitsToolException, IOException {
