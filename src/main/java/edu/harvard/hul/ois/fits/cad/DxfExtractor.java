@@ -136,7 +136,14 @@ public class DxfExtractor extends CadExtractor {
     protected void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
         final Map<String, List<String>> entries = readHeader(ds.getInputStream());
         for (Map.Entry<String, List<String>> entry: entries.entrySet()) {
-            System.out.println("Got a header entry: " + entry.getKey());
+            final Element headerElement = new Element("header");
+            headerElement.setAttribute("name", entry.getKey());
+            for (String value: entry.getValue()) {
+                final Element valueElement = new Element("value");
+                valueElement.setText(value);
+                headerElement.addContent(valueElement);
+            }
+            result.addContent(headerElement);
         }
     }
 }
