@@ -39,7 +39,7 @@ public class CadTool extends ToolBase {
         try {
             allExtractors = new CadExtractor[] {
                     new DwgExtractor(),
-    //                new DxfExtractor(),
+                    new DxfExtractor(),
                     new X3dExtractor(),
                     new PdfExtractor()
             };
