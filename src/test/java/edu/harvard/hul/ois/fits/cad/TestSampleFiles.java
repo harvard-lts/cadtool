@@ -47,11 +47,19 @@ public class TestSampleFiles {
             "/TriangleStripSet.x3d"
     );
 
+    public static final List<String> DXF_TEST_FILES = Arrays.asList(
+            "/5217plan.dxf",
+            "/Bottom_plate.dxf",
+            "/Pump_cover.dxf",
+            "/R-126_strat_plan01.dxf"
+    );
+
     public static final List<String> ALL_TEST_FILES = new ArrayList<>();
     static {
         ALL_TEST_FILES.addAll(PDF_TEST_FILES);
         ALL_TEST_FILES.addAll(DWG_TEST_FILES);
         ALL_TEST_FILES.addAll(X3D_TEST_FILES);
+        ALL_TEST_FILES.addAll(DXF_TEST_FILES);
     }
 
     public TestSampleFiles() throws FitsToolException {
@@ -86,6 +94,13 @@ public class TestSampleFiles {
     @Test
     public void testX3dFiles() throws IOException, FitsToolException {
         final Element results = testFiles("x3d-test-results", X3D_TEST_FILES);
+        out.output(results, System.out);
+        System.out.flush();
+    }
+
+    @Test
+    public void testDxfFiles() throws IOException, FitsToolException {
+        final Element results = testFiles("dxf-test-results", DXF_TEST_FILES);
         out.output(results, System.out);
         System.out.flush();
     }
