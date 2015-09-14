@@ -92,6 +92,7 @@ public class CadTool extends ToolBase {
 
     public ToolOutput extractInfo(String filename, DataSource dataSource) throws FitsToolException {
         //TODO: this won't work for multi-part extensions (ie. blah.vrml.xml)
+        //TODO: test sequentially starting with first period and stripping them one at a time
         final int lastPeriod = filename.lastIndexOf('.');
         if (lastPeriod == -1) {
             throw new FitsToolException("cadtool invoked on file with no extension: " + filename);
