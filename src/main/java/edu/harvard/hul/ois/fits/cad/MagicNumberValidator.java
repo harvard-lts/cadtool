@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -33,7 +34,7 @@ public class MagicNumberValidator {
 
     public static MagicNumberValidator string(String s, boolean closeStream) {
         try {
-            return MagicNumberValidator.string(s, Charset.defaultCharset().name(), closeStream);
+            return MagicNumberValidator.string(s, StandardCharsets.US_ASCII.name(), closeStream);
         } catch(UnsupportedEncodingException ex) {
             throw new RuntimeException("System default charset not found", ex);
         }
