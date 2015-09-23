@@ -15,7 +15,6 @@ import java.util.*;
 public class DxfExtractor extends CadExtractor {
     private static final int GROUPCODE_READAHEAD_LIMIT = 64;
 
-
     public DxfExtractor() {
         super("dxf", "Drawing eXchange Format", "image/vnd.dxf", ".dxf");
     }
