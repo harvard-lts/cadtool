@@ -74,6 +74,7 @@ public class TestSampleFiles {
             assertNotNull(resource);
             final ToolOutput output = cadTool.extractInfo(filename, new URLDataSource(resource));
             results.addContent(output.getToolOutput().detachRootElement());
+            results.addContent(output.getFitsXml().detachRootElement());
         }
         return results;
     }
