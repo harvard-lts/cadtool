@@ -104,6 +104,7 @@ public class CadTool extends ToolBase {
         try {
             results = extractor.run(dataSource, filename);
         } catch (IOException | ValidationException e) {
+            e.printStackTrace();  //Printint here for debug support since FitsToolExceptions don't properly inherit stack trace
             throw new FitsToolException("Error running cad extractor " + extractor.getName() + " on " + filename, e);
         }
 
