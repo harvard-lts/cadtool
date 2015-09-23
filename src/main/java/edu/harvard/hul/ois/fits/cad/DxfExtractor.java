@@ -16,7 +16,7 @@ public class DxfExtractor extends CadExtractor {
     private static final int GROUPCODE_READAHEAD_LIMIT = 64;
 
     public DxfExtractor() {
-        super("dxf", "Drawing eXchange Format", "image/vnd.dxf", ".dxf");
+        super("dxf", ".dxf");
     }
 
     private static void seekToHeaderStart(BufferedReader reader) throws ValidationException, IOException {
@@ -133,6 +133,12 @@ public class DxfExtractor extends CadExtractor {
 
     @Override
     protected void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
+        final Element identity = new Element("identity");
+        identity.setAttribute("mimetype", "image/vnd.dxf");
+        identity.setAttribute("format", "Drawing eXchange Format");
+
+//        identity.setAttribute("version", ??);  //TODO: one of those headers must be the version number??
+
         final Map<String, List<String>> entries = readHeader(ds.getInputStream());
         for (Map.Entry<String, List<String>> entry: entries.entrySet()) {
             final Element headerElement = new Element("header");
@@ -144,5 +150,8 @@ public class DxfExtractor extends CadExtractor {
             }
             result.addContent(headerElement);
         }
+
+
+        result.addContent(identity);
     }
 }

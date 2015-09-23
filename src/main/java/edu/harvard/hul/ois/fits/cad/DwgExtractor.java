@@ -14,7 +14,7 @@ public class DwgExtractor extends CadExtractor {
     private final MagicNumberValidator validator = MagicNumberValidator.string("AC10", false);
 
     public DwgExtractor() {
-        super("dwg", "AutoCad Drawing", "image/vnd.dwg", ".dwg");
+        super("dwg", ".dwg");
     }
 
     @Override

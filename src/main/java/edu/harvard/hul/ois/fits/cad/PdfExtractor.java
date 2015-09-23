@@ -6,6 +6,7 @@ import org.apache.pdfbox.cos.COSObject;
 import org.apache.pdfbox.cos.COSStream;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.preflight.PreflightDocument;
@@ -13,12 +14,17 @@ import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
 import org.jdom.Element;
+import org.jdom.IllegalDataException;
 
 import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 
 /**
  * Created by Isaac Simmons on 8/27/2015.
@@ -27,7 +33,7 @@ public class PdfExtractor extends CadExtractor {
     private final MagicNumberValidator validator = MagicNumberValidator.string("%PDF");
 
     public PdfExtractor() {
-        super("pdf", "Portable Document Format", "application/pdf", ".pdf");
+        super("pdf", ".pdf");
     }
 
     public static void pdfbox_validate(DataSource ds, Element result) throws IOException {
@@ -78,11 +84,52 @@ public class PdfExtractor extends CadExtractor {
         }
     }
 
+    private static void appendElement(String elementName, String content, Element base) {
+        if (content != null && !content.isEmpty()) {
+            try {
+                final Element element = new Element(elementName);
+                element.setText(content);
+                base.addContent(element);
+            } catch (IllegalDataException ignored) {
+                System.out.println("Invalid XML data for pdf header: " + elementName);
+            }
+        }
+    }
+
+    private static void appendElement(String elementName, Calendar content, Element base) {
+        if (content != null) {
+            final Element element = new Element(elementName);
+            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            element.setText(df.format(content.getTime()));
+            base.addContent(element);
+        }
+    }
+
     @Override
     public void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
         validator.validate(ds.getInputStream());
+
+        final Element identity = new Element("identity");
+        identity.setAttribute("mimetype", "application/pdf");
+        identity.setAttribute("format", "Portable Document Format");
+//        identity.setAttribute("version", ??);  //TODO: doesn't look like PDF revision is available to me from pdfbox
+        result.addContent(identity);
+
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
+            final PDDocumentInformation info = doc.getDocumentInformation();
+            try {
+                appendElement("title", info.getTitle(), result);
+                appendElement("author", info.getAuthor(), result);
+                appendElement("subject", info.getSubject(), result);
+                appendElement("keywords", info.getKeywords(), result);
+                appendElement("creator", info.getCreator(), result);
+                appendElement("producer", info.getProducer(), result);
+                appendElement("created", info.getCreationDate(), result);
+                appendElement("modified", info.getModificationDate(), result);
+            } catch (IOException ex) {
+                System.out.println("Trouble parsing pdf metadata: " + ex.getMessage());
+            }
             final PDDocumentCatalog cat = doc.getDocumentCatalog();
 
             for(COSObject o: doc.getDocument().getObjects()) {

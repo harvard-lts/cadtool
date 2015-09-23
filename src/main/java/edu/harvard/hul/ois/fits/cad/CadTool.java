@@ -104,7 +104,7 @@ public class CadTool extends ToolBase {
         try {
             results = extractor.run(dataSource, filename);
         } catch (IOException | ValidationException e) {
-            e.printStackTrace();  //Printint here for debug support since FitsToolExceptions don't properly inherit stack trace
+            e.printStackTrace();  //Printing here for debug support since FitsToolExceptions don't properly inherit stack trace
             throw new FitsToolException("Error running cad extractor " + extractor.getName() + " on " + filename, e);
         }
 
@@ -116,13 +116,7 @@ public class CadTool extends ToolBase {
             throw new FitsToolException("Error transforming tool output to fits output", e);
         }
 
-        final ToolOutput result = new ToolOutput(this, fitsOutput, toolOutput);
-
-        //Add identification based on extractor
-        //Any extractor given an incorrect file should have thrown an exception, so if we get here, we know it passed
-        result.addFileIdentity(new ToolIdentity(extractor.getDefaultMime(), extractor.getDefaultFormat(), new ToolInfo(CadTool.NAME, CadTool.VERSION, null)));
-
-        return result;
+        return new ToolOutput(this, fitsOutput, toolOutput);
     }
 
     @Override
