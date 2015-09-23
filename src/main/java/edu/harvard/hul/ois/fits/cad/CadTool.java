@@ -37,17 +37,12 @@ public class CadTool extends ToolBase {
         getToolInfo().setName(CadTool.NAME);
         getToolInfo().setVersion(VERSION);
         final Map<String, CadExtractor> temp = new HashMap<>();
-        final CadExtractor[] allExtractors;
-        try {
-            allExtractors = new CadExtractor[] {
-                    new DwgExtractor(),
-                    new DxfExtractor(),
-                    new X3dExtractor(),
-                    new PdfExtractor()
-            };
-        } catch (JDOMException e) {
-            throw new FitsToolException("JDOM Error initializing CAD extractors", e);
-        }
+        final CadExtractor[] allExtractors= new CadExtractor[] {
+                new DwgExtractor(),
+                new DxfExtractor(),
+                new X3dExtractor(),
+                new PdfExtractor()
+        };
         final Set<String> extractorNames = new HashSet<>();
         for (CadExtractor extractor: allExtractors) {
             if (! extractorNames.add(extractor.getName())) {

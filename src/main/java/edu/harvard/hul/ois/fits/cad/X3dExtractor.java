@@ -16,20 +16,16 @@ import java.util.List;
  */
 public class X3dExtractor extends CadExtractor {
     //TODO: only works with XML encoding for now. Do I care about .x3dv or .wrl?
-    final SAXBuilder parser = new SAXBuilder();
-    final XPath headerPath;
 
-
-    public X3dExtractor() throws JDOMException {
+    public X3dExtractor() {
         super("x3d", "X3D (Extensible 3D) model xml text", "model/x3d", ".x3d");
-        headerPath = XPath.newInstance("/X3D/head/meta");
     }
 
     @Override
     protected void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
         final Document doc;
         try {
-            doc = parser.build(ds.getInputStream());
+            doc = new SAXBuilder().build(ds.getInputStream());
         } catch (JDOMException e) {
             throw new ValidationException("Unable to parse X3D XML content", e);
         }
@@ -48,7 +44,7 @@ public class X3dExtractor extends CadExtractor {
         //Grab all headers from the X3D doc and shove them into our results
         final List headerNodes;
         try {
-            headerNodes = headerPath.selectNodes(doc);
+            headerNodes = XPath.newInstance("/X3D/head/meta").selectNodes(doc);
         } catch (JDOMException e) {
             throw new RuntimeException(e); //TODO: something better than just upgrading this to a runtime
         }
