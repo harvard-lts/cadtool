@@ -34,6 +34,8 @@ public class CadTool extends ToolBase {
     public CadTool() throws FitsToolException {
         super();
         setName(CadTool.NAME);
+        getToolInfo().setName(CadTool.NAME);
+        getToolInfo().setVersion(VERSION);
         final Map<String, CadExtractor> temp = new HashMap<>();
         final CadExtractor[] allExtractors;
         try {
