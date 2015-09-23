@@ -135,7 +135,6 @@ public class PdfExtractor extends CadExtractor {
 
             //TODO: File attachments?
 
-//            final Element annotationElement = new Element("annotation-3d");
             boolean annotationPresent = false;
             pageloop: for (Object o: cat.getAllPages()) {
                 if (o instanceof PDPage) {
