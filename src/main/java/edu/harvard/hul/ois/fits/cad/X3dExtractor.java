@@ -35,7 +35,7 @@ public class X3dExtractor extends CadExtractor {
         if (! doc.getDocType().getSystemID().startsWith("http://www.web3d.org/specifications/x3d-")) {
             throw new ValidationException("XML doctype system identifier doesn't look like X3D: " + doc.getDocType().getSystemID());
         }
-        //TODO: think more about what my tools should output if given invalid files. Maybe it shouldn't propogate an exception all the way up, and instead just not return anything
+        //TODO: think more about what my tools should output if given invalid files. Maybe it shouldn't propagate an exception all the way up, and instead just not return anything
 
         if (! "X3D".equals(doc.getRootElement().getName())) {
             throw new ValidationException("x3d document has incorrect root element: " + doc.getRootElement().getName());
