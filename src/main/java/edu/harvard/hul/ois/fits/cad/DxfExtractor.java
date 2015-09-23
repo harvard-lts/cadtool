@@ -1,7 +1,5 @@
 package edu.harvard.hul.ois.fits.cad;
 
-import org.jdom.Element;
-
 import javax.activation.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -132,26 +130,19 @@ public class DxfExtractor extends CadExtractor {
     }
 
     @Override
-    protected void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
-        final Element identity = new Element("identity");
-        identity.setAttribute("mimetype", "image/vnd.dxf");
-        identity.setAttribute("format", "Drawing eXchange Format");
+    public CadToolResult run(DataSource ds, String filename) throws IOException, ValidationException {
+        final CadToolResult result = new CadToolResult(name, filename);
+        result.mimetype = "image/vnd.dxf";
+        result.formatName = "Drawing eXchange Format";
 
 //        identity.setAttribute("version", ??);  //TODO: one of those headers must be the version number??
 
         final Map<String, List<String>> entries = readHeader(ds.getInputStream());
         for (Map.Entry<String, List<String>> entry: entries.entrySet()) {
-            final Element headerElement = new Element("header");
-            headerElement.setAttribute("name", entry.getKey());
             for (String value: entry.getValue()) {
-                final Element valueElement = new Element("value");
-                valueElement.setText(value);
-                headerElement.addContent(valueElement);
+                result.addKeyValue(entry.getKey(), value);
             }
-            result.addContent(headerElement);
         }
-
-
-        result.addContent(identity);
+        return result;
     }
 }

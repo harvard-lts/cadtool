@@ -8,7 +8,6 @@ import org.jdom.xpath.XPath;
 
 import javax.activation.DataSource;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +21,8 @@ public class X3dExtractor extends CadExtractor {
     }
 
     @Override
-    protected void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
+    public CadToolResult run(DataSource ds, String filename) throws IOException, ValidationException {
+        final CadToolResult result = new CadToolResult(name, filename);
         final Document doc;
         try {
             doc = new SAXBuilder().build(ds.getInputStream());
@@ -41,14 +41,12 @@ public class X3dExtractor extends CadExtractor {
             throw new ValidationException("x3d document has incorrect root element: " + doc.getRootElement().getName());
         }
 
-        final Element identity = new Element("identity");
-        identity.setAttribute("mimetype", "model/x3d");
-        identity.setAttribute("format", "X3D (Extensible 3D) model xml text");
+        result.mimetype = "model/x3d";
+        result.formatName = "X3D (Extensible 3D) model xml text";
         final String version = doc.getDocType().getSystemID().substring("http://www.web3d.org/specifications/x3d-".length());
         if (version.endsWith(".dtd")) {
-            identity.setAttribute("version", version.substring(0, version.length() - 4));
+            result.formatVersion = version.substring(0, version.length() - 4);
         }
-        result.addContent(identity);
 
         //Grab all headers from the X3D doc and shove them into our results
         final List headerNodes;
@@ -57,21 +55,14 @@ public class X3dExtractor extends CadExtractor {
         } catch (JDOMException e) {
             throw new RuntimeException(e); //TODO: something better than just upgrading this to a runtime
         }
-        final Element headers = new Element("headers");
         for(Object headerNode: headerNodes) {
             if (headerNode instanceof Element) {
                 final String name = ((Element) headerNode).getAttributeValue("name");
                 final String value = ((Element) headerNode).getAttributeValue("content");
-                if (name != null && value != null && !name.isEmpty() && !value.isEmpty()) {
-                    final Element header = new Element(name);
-                    header.setText(value);
-                    headers.addContent(header);
-                }
+                result.addKeyValue(name, value);
             }
         }
-        if (! headers.getChildren().isEmpty()) {
-            result.addContent(headers);
-        }
+        return result;
     }
 
     //TODO: I should be able to pull quite a few structural features out of this as well

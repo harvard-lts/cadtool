@@ -38,15 +38,7 @@ public abstract class CadExtractor {
         return false;
     }
 
-    protected abstract void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException;
-
-    public final Element run(DataSource ds, String filename) throws IOException, ValidationException {
-        final Element result = new Element("cad-tool-result");
-        result.setAttribute("extractor", name);
-        result.setAttribute("file", filename);
-        doRun(ds, filename, result);
-        return result;
-    }
+    public abstract CadToolResult run(DataSource ds, String filename) throws IOException, ValidationException;
 
     public String getName() {
         return name;

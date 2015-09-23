@@ -99,7 +99,7 @@ public class CadTool extends ToolBase {
             throw new FitsToolException("cadtool invoked on file with unsupported extension: " + filename);
         }
         final CadExtractor extractor = extractors.get(extension);
-        final Element results;
+        final CadToolResult results;
 
         try {
             results = extractor.run(dataSource, filename);
@@ -111,7 +111,7 @@ public class CadTool extends ToolBase {
             throw new FitsToolException("Error running cad extractor " + extractor.getName() + " on " + filename, e);
         }
 
-        final Document toolOutput = new Document(results);
+        final Document toolOutput = new Document(results.toXml());
         final Document fitsOutput;
         try {
             fitsOutput = transformer.transform(toolOutput);

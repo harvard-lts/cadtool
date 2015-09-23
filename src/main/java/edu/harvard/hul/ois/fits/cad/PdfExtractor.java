@@ -24,7 +24,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * Created by Isaac Simmons on 8/27/2015.
@@ -36,7 +35,7 @@ public class PdfExtractor extends CadExtractor {
         super("pdf", ".pdf");
     }
 
-    public static void pdfbox_validate(DataSource ds, Element result) throws IOException {
+    public static void pdfbox_validate(DataSource ds, CadToolResult result) throws IOException {
         ValidationResult validationResult;
         final PreflightParser parser = new PreflightParser(ds);
         PreflightDocument document = null;
@@ -79,54 +78,40 @@ public class PdfExtractor extends CadExtractor {
                 element.setAttribute("code", errorCode);
                 element.setAttribute("details", detailEntry.getKey());
                 element.setAttribute("count", Integer.toString(detailEntry.getValue()));
-                result.addContent(element);
+                result.addElement(element);
             }
-        }
-    }
-
-    private static void appendElement(String elementName, String content, Element base) {
-        if (content != null && !content.isEmpty()) {
-            try {
-                final Element element = new Element(elementName);
-                element.setText(content);
-                base.addContent(element);
-            } catch (IllegalDataException ignored) {
-                System.out.println("Invalid XML data for pdf header: " + elementName);
-            }
-        }
-    }
-
-    private static void appendElement(String elementName, Calendar content, Element base) {
-        if (content != null) {
-            final Element element = new Element(elementName);
-            final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            element.setText(df.format(content.getTime()));
-            base.addContent(element);
         }
     }
 
     @Override
-    public void doRun(DataSource ds, String filename, Element result) throws IOException, ValidationException {
+    public CadToolResult run(DataSource ds, String filename) throws IOException, ValidationException {
+        final CadToolResult result = new CadToolResult(name, filename);
+
         validator.validate(ds.getInputStream());
 
-        final Element identity = new Element("identity");
-        identity.setAttribute("mimetype", "application/pdf");
-        identity.setAttribute("format", "Portable Document Format");
-//        identity.setAttribute("version", ??);  //TODO: doesn't look like PDF revision is available to me from pdfbox
-        result.addContent(identity);
+        result.mimetype = "application/pdf";
+        result.formatName = "Portable Document Format";
+        //TODO: doesn't look like PDF revision is available to me from pdfbox
 
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentInformation info = doc.getDocumentInformation();
             try {
-                appendElement("title", info.getTitle(), result);
-                appendElement("author", info.getAuthor(), result);
-                appendElement("subject", info.getSubject(), result);
-                appendElement("keywords", info.getKeywords(), result);
-                appendElement("creator", info.getCreator(), result);
-                appendElement("producer", info.getProducer(), result);
-                appendElement("created", info.getCreationDate(), result);
-                appendElement("modified", info.getModificationDate(), result);
+                result.title = info.getTitle();
+                result.author = info.getAuthor();
+                result.addKeyValue("subject", info.getSubject());
+                result.addKeyValue("keywords", info.getKeywords());
+                //TODO info.getAuthor() vs info.getCreator()??    (vs getProducer())
+                result.addKeyValue("creator", info.getCreator());
+                result.addKeyValue("producer", info.getProducer());
+                if (info.getCreationDate() != null) {
+                    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    result.creationDate = df.format(info.getCreationDate().getTime());
+                }
+                if (info.getModificationDate() != null) {
+                    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    result.modificationDate = df.format(info.getModificationDate().getTime());
+                }
             } catch (IOException ex) {
                 System.out.println("Trouble parsing pdf metadata: " + ex.getMessage());
             }
@@ -142,7 +127,7 @@ public class PdfExtractor extends CadExtractor {
                             streamElement.setAttribute("type", stream.getNameAsString(COSName.SUBTYPE));
                         }
                         streamElement.setAttribute("bytes", Long.toString(stream.getFilteredLength()));
-                        result.addContent(streamElement);
+                        result.addElement(streamElement);
                         //TODO: actually pull the stream itself and decode it?
                     }
                 }
@@ -150,22 +135,23 @@ public class PdfExtractor extends CadExtractor {
 
             //TODO: File attachments?
 
-            final Element annotationElement = new Element("annotation-3d");
-            annotationElement.setAttribute("present", "false");
+//            final Element annotationElement = new Element("annotation-3d");
+            boolean annotationPresent = false;
             pageloop: for (Object o: cat.getAllPages()) {
                 if (o instanceof PDPage) {
                     final PDPage page = (PDPage) o;
                     for (PDAnnotation annotation: page.getAnnotations()) {
                         if ("3D".equals(annotation.getSubtype())) {
-                            annotationElement.setAttribute("present", "true");
+                            annotationPresent = true;
                             break pageloop;
                         }
                     }
                 }
             }
-            result.addContent(annotationElement);
+            result.addKeyValue("pdf-3d-annotation", Boolean.toString(annotationPresent));
             doc.close();
         }
         pdfbox_validate(ds, result);
+        return result;
     }
 }
