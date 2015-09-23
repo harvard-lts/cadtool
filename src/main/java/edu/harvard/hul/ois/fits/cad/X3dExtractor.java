@@ -57,11 +57,20 @@ public class X3dExtractor extends CadExtractor {
         } catch (JDOMException e) {
             throw new RuntimeException(e); //TODO: something better than just upgrading this to a runtime
         }
+        final Element headers = new Element("headers");
         for(Object headerNode: headerNodes) {
-            //TODO: special handling of some headers in order to make the xslt into fits xml simpler?
             if (headerNode instanceof Element) {
-                result.addContent((Element)((Element)headerNode).clone());
+                final String name = ((Element) headerNode).getAttributeValue("name");
+                final String value = ((Element) headerNode).getAttributeValue("content");
+                if (name != null && value != null && !name.isEmpty() && !value.isEmpty()) {
+                    final Element header = new Element(name);
+                    header.setText(value);
+                    headers.addContent(header);
+                }
             }
+        }
+        if (! headers.getChildren().isEmpty()) {
+            result.addContent(headers);
         }
     }
 
