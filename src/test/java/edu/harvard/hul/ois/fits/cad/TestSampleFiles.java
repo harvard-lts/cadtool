@@ -35,7 +35,8 @@ public class TestSampleFiles {
             "/civil_example-imperial.dwg",
             "/Figure_A04.dwg",
             "/Pump_cover.dwg",
-            "/visualization_-_sun_and_sky_demo.dwg"
+            "/visualization_-_sun_and_sky_demo.dwg",
+            "/5217plan.dwg"
     );
 
     public static final List<String> X3D_TEST_FILES = Arrays.asList(
