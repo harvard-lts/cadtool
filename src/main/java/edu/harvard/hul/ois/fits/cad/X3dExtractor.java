@@ -8,6 +8,9 @@ import org.jdom.xpath.XPath;
 
 import javax.activation.DataSource;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -21,6 +24,16 @@ public class X3dExtractor extends CadExtractor {
 
     public X3dExtractor() {
         super("x3d", ".x3d");
+    }
+
+    public static String reformatDate(String x3dDate) {
+        final DateFormat x3dFormat = new SimpleDateFormat("dd MMMM yyyy");
+        final DateFormat cadToolFormat = new SimpleDateFormat(CadTool.PREFERRED_SHORT_DATE_FORMAT);
+        try {
+            return cadToolFormat.format(x3dFormat.parse(x3dDate));
+        } catch (ParseException ex) {
+            return x3dDate;
+        }
     }
 
     @Override
@@ -62,7 +75,19 @@ public class X3dExtractor extends CadExtractor {
             if (headerNode instanceof Element) {
                 final String name = ((Element) headerNode).getAttributeValue("name");
                 final String value = ((Element) headerNode).getAttributeValue("content");
-                result.addKeyValue(name, value);
+                if (name != null && value != null && !name.isEmpty() && !value.isEmpty()) {
+                    switch(name) {
+                        //TODO: some files have multiple values for these fields but my result object only holds one per field
+                        case "creator": result.author = value; break;
+                        case "identifier": result.uniqueId = value; break;
+                        case "generator": result.generator = value; break;
+                        case "description": result.description = value; break;
+                        case "title": result.title = value; break;
+                        case "modified": result.modificationDate = reformatDate(value); break;
+                        case "created": result.creationDate = reformatDate(value); break;
+                        default: result.addKeyValue(name, value);
+                    }
+                }
             }
         }
         return result;

@@ -26,6 +26,7 @@ public class CadTool extends ToolBase {
     public static final String NAME = "cadtool";
 
     public static final String PREFERRED_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm'Z'";
+    public static final String PREFERRED_SHORT_DATE_FORMAT = "yyyy-MM-dd";
 
     private static final String CADTOOL_XSLT_RESOURCE = "/cadtool_to_fits.xslt";
 
