@@ -3,9 +3,7 @@
 This is a tool to perform identification, validation and metadata extraction on a limited set of CAD file formats.
 It is designed to work with [FITS](http://projects.iq.harvard.edu/fits).
 
-## Developer ##
-
-### Building ###
+## Building ##
 
 CADTool uses [Maven](https://maven.apache.org/) to for compilation.
 JDK (1.7 or later) and Maven will need to be installed and configured before compiling CAD Tool.
@@ -15,7 +13,7 @@ In order to build the necessary artifacts, run the following:
 
 That will put the CAD Tool jarfile (`cadtool-$VERSION.jar`), along with all of its dependencies (except for those already provided by FITS) in the `target` directory.
 
-### Installation ###
+## Installation ##
 
 Installation of CADTool into FITS requires a few steps:
 
