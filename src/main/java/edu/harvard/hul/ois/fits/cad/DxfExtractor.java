@@ -1,10 +1,15 @@
 package edu.harvard.hul.ois.fits.cad;
 
+import org.jdom.Element;
+
 import javax.activation.DataSource;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -129,20 +134,124 @@ public class DxfExtractor extends CadExtractor {
         return headerValues;
     }
 
+    private static final float SECONDS_PER_DAY = 60 * 60 * 24;
+
+    private static String translateDxfDate(String dxfDate) {
+        final String[] split = dxfDate.split("\\.");
+        final int days = Integer.parseInt(split[0]);
+        final float fraction = Float.parseFloat("0." + split[1]);
+        Calendar c = new GregorianCalendar(-4712, 0, 0);
+        c.add(Calendar.DAY_OF_MONTH, days);
+        c.add(Calendar.SECOND, Math.round(SECONDS_PER_DAY * fraction));
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        df.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return df.format(c.getTime());
+    }
+
     @Override
     public CadToolResult run(DataSource ds, String filename) throws IOException, ValidationException {
         final CadToolResult result = new CadToolResult(name, filename);
         result.mimetype = "image/vnd.dxf";
         result.formatName = "Drawing eXchange Format";
 
-//        identity.setAttribute("version", ??);  //TODO: one of those headers must be the version number??
-
         final Map<String, List<String>> entries = readHeader(ds.getInputStream());
-        for (Map.Entry<String, List<String>> entry: entries.entrySet()) {
-            for (String value: entry.getValue()) {
-                result.addKeyValue(entry.getKey(), value);
+
+        final List<String> versionValues = entries.remove("ACADVER");
+        if (versionValues != null && versionValues.size() == 1) {
+            final String versionString = versionValues.get(0);
+            result.formatVersion = DwgExtractor.versionSuffixLookup(versionString.substring(versionString.length() - 2));
+        }
+
+        List<String> createValues = entries.remove("TDUCREATE");
+        if (createValues != null && createValues.size() == 1) {
+            result.modificationDate = translateDxfDate(createValues.get(0));
+            entries.remove("TDCREATE");
+        } else {
+            createValues = entries.remove("TDCREATE");
+            if (createValues != null && createValues.size() == 1) {
+                result.modificationDate = translateDxfDate(createValues.get(0));
             }
         }
+
+        List<String> updateValues = entries.remove("TDUUPDATE");
+        if (updateValues != null && updateValues.size() == 1) {
+            result.modificationDate = translateDxfDate(updateValues.get(0));
+            entries.remove("TDUPDATE");
+        } else {
+            updateValues = entries.remove("TDUPDATE");
+            if (updateValues != null && updateValues.size() == 1) {
+                result.modificationDate = translateDxfDate(updateValues.get(0));
+            }
+        }
+
+        List<String> minExtentValues = entries.remove("EXTMIN");
+        List<String> maxExtentValues = entries.remove("EXTMAX");
+        if (maxExtentValues != null && minExtentValues != null && maxExtentValues.size() >= 2 && maxExtentValues.size() == minExtentValues.size()) {
+            final Element extent = new Element("Extent");
+            elementloop: for (int i = 0; i < minExtentValues.size(); i++) {
+                final double minVal = Double.parseDouble(minExtentValues.get(i));
+                final double maxVal = Double.parseDouble(maxExtentValues.get(i));
+                final double mag = Math.abs(maxVal - minVal);
+                final Element dimension = new Element("Dimension");
+                dimension.setAttribute("magnitude", Double.toString(mag));
+                switch(i) {
+                    case 0:
+                        dimension.setAttribute("axis", "x");
+                        break;
+                    case 1:
+                        dimension.setAttribute("axis", "y");
+                        break;
+                    case 2:
+                        dimension.setAttribute("axis", "z");
+                        if (mag < 0.000000000001d) {  //Check against some very small value in case of double precision errors
+                            break elementloop;
+                        }
+                        break;
+                }
+                extent.addContent(dimension);
+            }
+            result.addElement(extent);
+        }
+
+        final List<String> unitsValues = entries.remove("INSUNITS");
+        if (unitsValues != null && unitsValues.size() == 1) {
+            final String code = unitsValues.get(0);
+            final String units;
+            final String system;
+            switch(code) {
+                case "1": units = "Inches"; system = "Imperial"; break;
+                case "2": units = "Feet"; system = "Imperial"; break;
+                case "3": units = "Miles"; system = "Imperial"; break;
+                case "4": units = "Millimeters"; system = "Metric"; break;
+                case "5": units = "Centimeters"; system = "Metric"; break;
+                case "6": units = "Meters"; system = "Metric"; break;
+                case "7": units = "Kilometers"; system = "Metric"; break;
+                case "8": units = "Microinches"; system = "Imperial"; break;
+                case "9": units = "Mils"; system = null; break; //Not sure if this refers to 1/1000" or millimeters?
+                case "10": units = "Yards"; system = "Imperial"; break;
+                case "11": units = "Angstroms"; system = null; break;
+                case "12": units = "Nanometers"; system = "Metric"; break;
+                case "13": units = "Microns"; system = "Metric"; break;
+                case "14": units = "Decimeters"; system = "Metric"; break;
+                case "15": units = "Decameters"; system = "Metric"; break;
+                case "16": units = "Hectometers"; system = "Metric"; break;
+                case "17": units = "Gigameters"; system = "Metric"; break;
+                case "18": units = "Astronomical Units"; system = null; break;
+                case "19": units = "Light Years"; system = null; break;
+                case "20": units = "Parsecs"; system = null; break;
+                default: units = null; system = null;
+            }
+            result.addKeyValue("units", units);
+            result.addKeyValue("measurement-system", system);
+        }
+
+
+////        And all the rest of the vaules
+//        for (Map.Entry<String, List<String>> entry: entries.entrySet()) {
+//            for (String value: entry.getValue()) {
+//                result.addKeyValue(entry.getKey(), value);
+//            }
+//        }
         return result;
     }
 }
