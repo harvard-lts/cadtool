@@ -26,10 +26,11 @@ Installation of CADTool into FITS requires a few steps:
 * Add the CADTool lib directory to the generated classpath in `fits.bat` (`for %%i in (lib\cadtool\*.jar) do call "%FITS_HOME%\cappend.bat" %%i`)
 * Add the CADTool lib directory to the generated classpath in `fits-env.sh`
 
-
+    ```
     CTPATH=${FITS_HOME}/lib/cadtool
     for i in "$CTPATH"/*.jar; do
       APPCLASSPATH="$APPCLASSPATH":"$i"
     done
+    ```
 
 CADTool should now be integrated with the FITS toolchain and be invoked on any files with `dwg`, `dxf`, `x3d`, or `pdf` extensions.
