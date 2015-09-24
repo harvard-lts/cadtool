@@ -16,12 +16,13 @@ public class CadToolResult {
     public String mimetype;
     public String formatName;
     public String formatVersion;
-    public String author;
     public String creationDate;
     public String modificationDate;
-    public String title;
-    public String description;
-    public String generator;
+    public final List<String> descriptions = new ArrayList<>();
+    public final List<String> authors = new ArrayList<>();
+    public final List<String> titles = new ArrayList<>();
+    public final List<String> creatingApplicationNames = new ArrayList<>();
+
     public Map<String, List<String>> customKeyValues = new HashMap<>();
     public List<Element> customElements = new ArrayList<>();
 
@@ -77,12 +78,20 @@ public class CadToolResult {
         result.addContent(identity);
 
         appendElement("unique-id", uniqueId, result);
-        appendElement("author", author, result);
         appendElement("created", creationDate, result);
         appendElement("modified", modificationDate, result);
-        appendElement("title", title, result);
-        appendElement("description", description, result);
-        appendElement("generator", generator, result);
+        for(String author: authors) {
+            appendElement("author", author, result);
+        }
+        for(String title: titles) {
+            appendElement("title", title, result);
+        }
+        for(String description: descriptions) {
+            appendElement("description", description, result);
+        }
+        for(String creatingApplicationName: creatingApplicationNames) {
+            appendElement("creatingApplicationName", creatingApplicationName, result);
+        }
 
         for(Map.Entry<String, List<String>> e: customKeyValues.entrySet()) {
             for(String value: e.getValue()) {

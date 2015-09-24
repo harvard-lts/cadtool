@@ -77,12 +77,11 @@ public class X3dExtractor extends CadExtractor {
                 final String value = ((Element) headerNode).getAttributeValue("content");
                 if (name != null && value != null && !name.isEmpty() && !value.isEmpty()) {
                     switch(name) {
-                        //TODO: some files have multiple values for these fields but my result object only holds one per field
-                        case "creator": result.author = value; break;
+                        case "creator": result.authors.add(value); break;
                         case "identifier": result.uniqueId = value; break;
-                        case "generator": result.generator = value; break;
-                        case "description": result.description = value; break;
-                        case "title": result.title = value; break;
+                        case "generator": result.creatingApplicationNames.add(value); break;
+                        case "description": result.descriptions.add(value); break;
+                        case "title": result.titles.add(value); break;
                         case "modified": result.modificationDate = reformatDate(value); break;
                         case "created": result.creationDate = reformatDate(value); break;
                         default: result.addKeyValue(name, value);

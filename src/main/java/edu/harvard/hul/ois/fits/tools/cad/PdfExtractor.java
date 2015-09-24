@@ -100,13 +100,16 @@ public class PdfExtractor extends CadExtractor {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentInformation info = doc.getDocumentInformation();
             try {
-                result.title = info.getTitle();
-                result.author = info.getAuthor();
+                result.titles.add(info.getTitle());
+                result.authors.add(info.getAuthor());
                 result.addKeyValue("subject", info.getSubject());
                 result.addKeyValue("keywords", info.getKeywords());
-                //TODO info.getAuthor() vs info.getCreator()??    (vs getProducer())
-                result.addKeyValue("creator", info.getCreator());
-                result.addKeyValue("producer", info.getProducer());
+                if (info.getCreator() != null) {
+                    result.creatingApplicationNames.add(info.getCreator());
+                }
+                if (info.getProducer() != null) {
+                    result.creatingApplicationNames.add(info.getProducer());
+                }
                 if (info.getCreationDate() != null) {
                     final DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);
                     result.creationDate = df.format(info.getCreationDate().getTime());

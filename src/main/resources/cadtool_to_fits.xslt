@@ -15,6 +15,31 @@
                     </identity>
                 </xsl:for-each>
             </identification>
+            <fileinfo>
+                <xsl:for-each select="/cad-tool-result/created">
+                    <created>
+                        <xsl:value-of select="."/>
+                    </created>
+                </xsl:for-each>
+                <xsl:for-each select="/cad-tool-result/modified">
+                    <lastmodified>
+                        <xsl:value-of select="."/>
+                    </lastmodified>
+                </xsl:for-each>
+                <xsl:for-each select="/cad-tool-result">
+                    <filename>
+                        <xsl:value-of select="@file"/>
+                    </filename>
+                </xsl:for-each>
+                <xsl:for-each select="/cad-tool-result/creatingApplicationName">
+                    <creatingApplicationName>
+                        <xsl:value-of select="."/>
+                    </creatingApplicationName>
+                </xsl:for-each>
+                <!-- copyrightNote?, -->
+            </fileinfo>
+            <!-- file status valid or well-formed? -->
+            <!-- http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd -->
         </fits>
     </xsl:template>
 </xsl:stylesheet>
