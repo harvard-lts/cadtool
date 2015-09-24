@@ -1,7 +1,8 @@
-package edu.harvard.hul.ois.fits.cad;
+package edu.harvard.hul.ois.fits.tools.cad;
 
 import edu.harvard.hul.ois.fits.exceptions.FitsToolException;
 import edu.harvard.hul.ois.fits.tools.ToolOutput;
+import edu.harvard.hul.ois.fits.tools.cad.CadTool;
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;

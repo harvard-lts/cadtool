@@ -1,4 +1,4 @@
-package edu.harvard.hul.ois.fits.cad;
+package edu.harvard.hul.ois.fits.tools.cad;
 
 import org.apache.pdfbox.cos.COSBase;
 import org.apache.pdfbox.cos.COSName;
@@ -14,14 +14,12 @@ import org.apache.pdfbox.preflight.ValidationResult;
 import org.apache.pdfbox.preflight.exception.SyntaxValidationException;
 import org.apache.pdfbox.preflight.parser.PreflightParser;
 import org.jdom.Element;
-import org.jdom.IllegalDataException;
 
 import javax.activation.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 

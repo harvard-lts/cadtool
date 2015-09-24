@@ -1,4 +1,4 @@
-package edu.harvard.hul.ois.fits.cad;
+package edu.harvard.hul.ois.fits.tools.cad;
 
 import org.jdom.Element;
 import org.jdom.IllegalDataException;

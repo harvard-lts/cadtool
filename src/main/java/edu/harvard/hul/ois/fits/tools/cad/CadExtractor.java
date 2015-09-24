@@ -1,6 +1,4 @@
-package edu.harvard.hul.ois.fits.cad;
-
-import org.jdom.Element;
+package edu.harvard.hul.ois.fits.tools.cad;
 
 import javax.activation.DataSource;
 import java.io.IOException;

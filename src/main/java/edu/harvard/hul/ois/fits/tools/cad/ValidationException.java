@@ -1,4 +1,4 @@
-package edu.harvard.hul.ois.fits.cad;
+package edu.harvard.hul.ois.fits.tools.cad;
 
 /**
  * Created by Isaac Simmons on 9/13/2015.
