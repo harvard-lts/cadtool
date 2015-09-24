@@ -90,6 +90,8 @@ public class CadTool extends ToolBase {
     public ToolOutput extractInfo(String filename, DataSource dataSource) throws FitsToolException {
         //TODO: this won't work for multi-part extensions (ie. blah.vrml.xml)
         //TODO: test sequentially starting with first period and stripping them one at a time
+        long startTime = System.currentTimeMillis();
+
         final int lastPeriod = filename.lastIndexOf('.');
         if (lastPeriod == -1) {
             throw new FitsToolException("cadtool invoked on file with no extension: " + filename);
@@ -120,6 +122,8 @@ public class CadTool extends ToolBase {
             throw new FitsToolException("Error transforming tool output to fits output", e);
         }
 
+        setRunStatus(RunStatus.SUCCESSFUL);
+        this.duration = System.currentTimeMillis() - startTime;
         return new ToolOutput(this, fitsOutput, toolOutput);
     }
 
