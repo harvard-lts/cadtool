@@ -17,6 +17,8 @@ import java.util.*;
  */
 public class DxfExtractor extends CadExtractor {
     private static final int GROUPCODE_READAHEAD_LIMIT = 64;
+    public static final String DEFAULT_MIMETYPE = "image/vnd.dxf";
+    public static final String DEFAULT_FORMAT_NAME = "Drawing eXchange Format";
 
     public DxfExtractor() {
         super("dxf", ".dxf");
@@ -151,8 +153,8 @@ public class DxfExtractor extends CadExtractor {
     @Override
     public CadToolResult run(DataSource ds, String filename) throws IOException, ValidationException {
         final CadToolResult result = new CadToolResult(name, filename);
-        result.mimetype = "image/vnd.dxf";
-        result.formatName = "Drawing eXchange Format";
+        result.mimetype = DxfExtractor.DEFAULT_MIMETYPE;
+        result.formatName = DxfExtractor.DEFAULT_FORMAT_NAME;
 
         final Map<String, List<String>> entries = readHeader(ds.getInputStream());
 

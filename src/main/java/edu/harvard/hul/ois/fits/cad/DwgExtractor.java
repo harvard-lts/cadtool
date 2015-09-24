@@ -11,6 +11,9 @@ import java.nio.charset.StandardCharsets;
  * Created by Isaac Simmons on 9/13/2015.
  */
 public class DwgExtractor extends CadExtractor {
+    public static final String DEFAULT_MIMETYPE = "image/vnd.dwg";
+    public static final String DEFAULT_FORMAT_NAME = "AutoCad Drawing";
+
     private final MagicNumberValidator validator = MagicNumberValidator.string("AC10", false);
 
     public DwgExtractor() {
@@ -41,10 +44,10 @@ public class DwgExtractor extends CadExtractor {
         final CadToolResult result = new CadToolResult(name, filename);
         try (final InputStream in = ds.getInputStream()) {
             validator.validate(in);
+            result.mimetype = DwgExtractor.DEFAULT_MIMETYPE;
+            result.formatName = DwgExtractor.DEFAULT_FORMAT_NAME;
             final byte[] versionBytes = MagicNumberValidator.readBytes(in, 2);
             result.formatVersion = DwgExtractor.versionSuffixLookup(new String(versionBytes, StandardCharsets.US_ASCII));
-            result.mimetype = "image/vnd.dwg";
-            result.formatName = "AutoCad Drawing";
             return result;
         }
     }

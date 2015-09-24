@@ -14,6 +14,9 @@ import java.util.List;
  * Created by Isaac Simmons on 9/13/2015.
  */
 public class X3dExtractor extends CadExtractor {
+    public static final String DEFAULT_MIMETYPE = "model/x3d";
+    public static final String DEFAULT_FORMAT_NAME = "X3D (Extensible 3D) model xml text";
+
     //TODO: only works with XML encoding for now. Do I care about .x3dv or .wrl?
 
     public X3dExtractor() {
@@ -41,8 +44,8 @@ public class X3dExtractor extends CadExtractor {
             throw new ValidationException("x3d document has incorrect root element: " + doc.getRootElement().getName());
         }
 
-        result.mimetype = "model/x3d";
-        result.formatName = "X3D (Extensible 3D) model xml text";
+        result.mimetype = X3dExtractor.DEFAULT_MIMETYPE;
+        result.formatName = X3dExtractor.DEFAULT_FORMAT_NAME;
         final String version = doc.getDocType().getSystemID().substring("http://www.web3d.org/specifications/x3d-".length());
         if (version.endsWith(".dtd")) {
             result.formatVersion = version.substring(0, version.length() - 4);

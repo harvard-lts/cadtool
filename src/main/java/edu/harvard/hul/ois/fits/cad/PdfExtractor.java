@@ -29,6 +29,9 @@ import java.util.Map;
  * Created by Isaac Simmons on 8/27/2015.
  */
 public class PdfExtractor extends CadExtractor {
+    public static final String DEFAULT_MIMETYPE = "application/pdf";
+    public static final String DEFAULT_FORMAT_NAME = "Portable Document Format";
+
     private final MagicNumberValidator validator = MagicNumberValidator.string("%PDF");
 
     public PdfExtractor() {
@@ -89,8 +92,8 @@ public class PdfExtractor extends CadExtractor {
 
         validator.validate(ds.getInputStream());
 
-        result.mimetype = "application/pdf";
-        result.formatName = "Portable Document Format";
+        result.mimetype = PdfExtractor.DEFAULT_MIMETYPE;
+        result.formatName = PdfExtractor.DEFAULT_FORMAT_NAME;
         //TODO: doesn't look like PDF revision is available to me from pdfbox
 
         //TODO: better handling of decryption failures
