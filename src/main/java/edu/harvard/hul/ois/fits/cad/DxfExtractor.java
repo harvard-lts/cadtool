@@ -143,7 +143,7 @@ public class DxfExtractor extends CadExtractor {
         Calendar c = new GregorianCalendar(-4712, 0, 0);
         c.add(Calendar.DAY_OF_MONTH, days);
         c.add(Calendar.SECOND, Math.round(SECONDS_PER_DAY * fraction));
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+        DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
         return df.format(c.getTime());
     }
@@ -217,32 +217,51 @@ public class DxfExtractor extends CadExtractor {
         if (unitsValues != null && unitsValues.size() == 1) {
             final String code = unitsValues.get(0);
             final String units;
-            final String system;
             switch(code) {
-                case "1": units = "Inches"; system = "Imperial"; break;
-                case "2": units = "Feet"; system = "Imperial"; break;
-                case "3": units = "Miles"; system = "Imperial"; break;
-                case "4": units = "Millimeters"; system = "Metric"; break;
-                case "5": units = "Centimeters"; system = "Metric"; break;
-                case "6": units = "Meters"; system = "Metric"; break;
-                case "7": units = "Kilometers"; system = "Metric"; break;
-                case "8": units = "Microinches"; system = "Imperial"; break;
-                case "9": units = "Mils"; system = null; break; //Not sure if this refers to 1/1000" or millimeters?
-                case "10": units = "Yards"; system = "Imperial"; break;
-                case "11": units = "Angstroms"; system = null; break;
-                case "12": units = "Nanometers"; system = "Metric"; break;
-                case "13": units = "Microns"; system = "Metric"; break;
-                case "14": units = "Decimeters"; system = "Metric"; break;
-                case "15": units = "Decameters"; system = "Metric"; break;
-                case "16": units = "Hectometers"; system = "Metric"; break;
-                case "17": units = "Gigameters"; system = "Metric"; break;
-                case "18": units = "Astronomical Units"; system = null; break;
-                case "19": units = "Light Years"; system = null; break;
-                case "20": units = "Parsecs"; system = null; break;
-                default: units = null; system = null;
+                case "1": units = "Inches"; break;
+                case "2": units = "Feet"; break;
+                case "3": units = "Miles"; break;
+                case "4": units = "Millimeters"; break;
+                case "5": units = "Centimeters"; break;
+                case "6": units = "Meters"; break;
+                case "7": units = "Kilometers"; break;
+                case "8": units = "Microinches"; break;
+                case "9": units = "Mils"; break;
+                case "10": units = "Yards"; break;
+                case "11": units = "Angstroms"; break;
+                case "12": units = "Nanometers"; break;
+                case "13": units = "Microns"; break;
+                case "14": units = "Decimeters"; break;
+                case "15": units = "Decameters"; break;
+                case "16": units = "Hectometers"; break;
+                case "17": units = "Gigameters"; break;
+                case "18": units = "Astronomical Units"; break;
+                case "19": units = "Light Years"; break;
+                case "20": units = "Parsecs"; break;
+                default: units = null;
             }
-            result.addKeyValue("units", units);
-            result.addKeyValue("measurement-system", system);
+            result.addKeyValue("default-units", units);
+        }
+
+        final List<String> measurementValues = entries.remove("MEASUREMENT");
+        if (measurementValues != null && measurementValues.size() == 1) {
+            final String code = measurementValues.get(0);
+            switch(code) {
+                case "0": result.addKeyValue("measurement-system", "Imperial"); break;
+                case "1": result.addKeyValue("measurement-system", "Metric"); break;
+            }
+        }
+
+        final List<String> uniqueIdValues = entries.remove("FINGERPRINTGUID");
+        if (uniqueIdValues != null && uniqueIdValues.size() == 1) {
+            final String id = uniqueIdValues.get(0);
+            result.addKeyValue("unique-id", id);
+        }
+
+        final List<String> uniqueVersionIdValues = entries.remove("VERSIONGUID");
+        if (uniqueVersionIdValues!= null && uniqueVersionIdValues.size() == 1) {
+            final String versionId = uniqueVersionIdValues.get(0);
+            result.addKeyValue("unique-version-id", versionId);
         }
 
 

@@ -93,6 +93,8 @@ public class PdfExtractor extends CadExtractor {
         result.formatName = "Portable Document Format";
         //TODO: doesn't look like PDF revision is available to me from pdfbox
 
+        //TODO: better handling of decryption failures
+
         try (final InputStream in = ds.getInputStream()) {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentInformation info = doc.getDocumentInformation();
@@ -105,11 +107,11 @@ public class PdfExtractor extends CadExtractor {
                 result.addKeyValue("creator", info.getCreator());
                 result.addKeyValue("producer", info.getProducer());
                 if (info.getCreationDate() != null) {
-                    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    final DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);
                     result.creationDate = df.format(info.getCreationDate().getTime());
                 }
                 if (info.getModificationDate() != null) {
-                    final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                    final DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);
                     result.modificationDate = df.format(info.getModificationDate().getTime());
                 }
             } catch (IOException ex) {
