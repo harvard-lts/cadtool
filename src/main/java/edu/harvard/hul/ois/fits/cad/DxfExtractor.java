@@ -257,7 +257,7 @@ public class DxfExtractor extends CadExtractor {
         final List<String> uniqueIdValues = entries.remove("FINGERPRINTGUID");
         if (uniqueIdValues != null && uniqueIdValues.size() == 1) {
             final String id = uniqueIdValues.get(0);
-            result.addKeyValue("unique-id", id);
+            result.uniqueId = id;
         }
 
         final List<String> uniqueVersionIdValues = entries.remove("VERSIONGUID");

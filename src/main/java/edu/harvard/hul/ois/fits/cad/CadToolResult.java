@@ -12,6 +12,7 @@ import java.util.*;
 public class CadToolResult {
     public final String toolname;
     public final String filename;
+    public String uniqueId;
     public String mimetype;
     public String formatName;
     public String formatVersion;
@@ -75,6 +76,7 @@ public class CadToolResult {
         }
         result.addContent(identity);
 
+        appendElement("unique-id", uniqueId, result);
         appendElement("author", author, result);
         appendElement("created", creationDate, result);
         appendElement("modified", modificationDate, result);
