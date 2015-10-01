@@ -39,7 +39,7 @@
                 <!-- copyrightNote?, -->
             </fileinfo>
             <metadata>
-                <document>
+                <cad>
                     <xsl:for-each select="/cad-tool-result/title">
                         <title>
                             <xsl:value-of select="."/>
@@ -50,8 +50,6 @@
                             <xsl:value-of select="."/>
                         </author>
                     </xsl:for-each>
-                </document>
-                <cad>
                     <xsl:for-each select="/cad-tool-result/embedded-3d-content">
                         <embedded-3d-content>
                             <xsl:attribute name="bytes" select="@bytes"/>
