@@ -99,8 +99,8 @@ public class PdfExtractor extends CadExtractor {
             final PDDocument doc = PDDocument.load(in);
             final PDDocumentInformation info = doc.getDocumentInformation();
             try {
-                result.titles.add(info.getTitle());
-                result.authors.add(info.getAuthor());
+                result.title = info.getTitle();
+                result.author = info.getAuthor();
                 result.addKeyValue("subject", info.getSubject());
                 result.addKeyValue("keywords", info.getKeywords());
                 if (info.getCreator() != null && info.getProducer() != null) {
