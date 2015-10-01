@@ -188,12 +188,12 @@ public class DxfExtractor extends CadExtractor {
         List<String> minExtentValues = entries.remove("EXTMIN");
         List<String> maxExtentValues = entries.remove("EXTMAX");
         if (maxExtentValues != null && minExtentValues != null && maxExtentValues.size() >= 2 && maxExtentValues.size() == minExtentValues.size()) {
-            final Element extent = new Element("Extent");
+            final Element extent = new Element("extent");
             elementloop: for (int i = 0; i < minExtentValues.size(); i++) {
                 final double minVal = Double.parseDouble(minExtentValues.get(i));
                 final double maxVal = Double.parseDouble(maxExtentValues.get(i));
                 final double mag = Math.abs(maxVal - minVal);
-                final Element dimension = new Element("Dimension");
+                final Element dimension = new Element("dimension");
                 dimension.setAttribute("magnitude", Double.toString(mag));
                 switch(i) {
                     case 0:
