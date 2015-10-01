@@ -69,7 +69,7 @@ public class CadTool extends ToolBase {
         ///////////////UGLY HACK/////////////////
         //If we are running outside of FITS, we need to fake a few static values that normally get initialized
         //in its constructor
-        if (Fits.FITS_XML == null && Fits.mapper == null) {
+        if (Fits.FITS_XML_DIR == null && Fits.mapper == null) {
             try {
                 //FitsXmlMapper constructor expects to find the fits_xml_map.xml file on the filesystem
                 //Pointed at by the Fits.FITS_XML variable
@@ -78,7 +78,7 @@ public class CadTool extends ToolBase {
                 if (!file.isFile()) {
                     Files.copy(getClass().getResourceAsStream("/fits_xml_map.xml"), file.toPath());
                 }
-                Fits.FITS_XML = tempDir;
+                Fits.FITS_XML_DIR = tempDir;
                 Fits.mapper = new FitsXmlMapper();
             } catch (JDOMException | IOException e) {
                 throw new FitsToolException("Error initializing static FITS values for standalone use", e);
