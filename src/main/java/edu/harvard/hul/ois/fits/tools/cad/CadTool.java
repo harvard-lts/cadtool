@@ -72,7 +72,7 @@ public class CadTool extends ToolBase {
         if (Fits.FITS_XML_DIR == null && Fits.mapper == null) {
             try {
                 //FitsXmlMapper constructor expects to find the fits_xml_map.xml file on the filesystem
-                //Pointed at by the Fits.FITS_XML variable
+                //Pointed at by the Fits.FITS_XML_DIR variable
                 final String tempDir = System.getProperty("java.io.tmpdir");
                 final File file = new File(tempDir, "fits_xml_map.xml");
                 if (!file.isFile()) {
