@@ -39,11 +39,23 @@
                 <!-- copyrightNote?, -->
             </fileinfo>
             <metadata>
+                <document>
+                    <xsl:for-each select="/cad-tool-result/title">
+                        <title>
+                            <xsl:value-of select="."/>
+                        </title>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/author">
+                        <author>
+                            <xsl:value-of select="."/>
+                        </author>
+                    </xsl:for-each>
+                </document>
                 <cad>
                     <xsl:for-each select="/cad-tool-result/embedded-3d-content">
                         <embedded-3d-content>
-                            <xsl:attribute name="type" select="@type"/>
                             <xsl:attribute name="bytes" select="@bytes"/>
+                            <xsl:value-of select="@type"/>
                         </embedded-3d-content>
                     </xsl:for-each>
                     <xsl:for-each select="/cad-tool-result/pdf-3d-annotation">
@@ -55,16 +67,6 @@
                         <unique-id>
                             <xsl:value-of select="."/>
                         </unique-id>
-                    </xsl:for-each>
-                    <xsl:for-each select="/cad-tool-result/author">
-                        <author>
-                            <xsl:value-of select="."/>
-                        </author>
-                    </xsl:for-each>
-                    <xsl:for-each select="/cad-tool-result/title">
-                        <title>
-                            <xsl:value-of select="."/>
-                        </title>
                     </xsl:for-each>
                     <xsl:for-each select="/cad-tool-result/description">
                         <description>
