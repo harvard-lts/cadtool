@@ -18,10 +18,10 @@ public class CadToolResult {
     public String formatVersion;
     public String creationDate;
     public String modificationDate;
+    public String creatingApplicationName;
     public final List<String> descriptions = new ArrayList<>();
     public final List<String> authors = new ArrayList<>();
     public final List<String> titles = new ArrayList<>();
-    public final List<String> creatingApplicationNames = new ArrayList<>();
 
     public Map<String, List<String>> customKeyValues = new HashMap<>();
     public List<Element> customElements = new ArrayList<>();
@@ -80,6 +80,7 @@ public class CadToolResult {
         appendElement("unique-id", uniqueId, result);
         appendElement("created", creationDate, result);
         appendElement("modified", modificationDate, result);
+        appendElement("creatingApplicationName", creatingApplicationName, result);
         for(String author: authors) {
             appendElement("author", author, result);
         }
@@ -88,9 +89,6 @@ public class CadToolResult {
         }
         for(String description: descriptions) {
             appendElement("description", description, result);
-        }
-        for(String creatingApplicationName: creatingApplicationNames) {
-            appendElement("creatingApplicationName", creatingApplicationName, result);
         }
 
         for(Map.Entry<String, List<String>> e: customKeyValues.entrySet()) {

@@ -103,11 +103,15 @@ public class PdfExtractor extends CadExtractor {
                 result.authors.add(info.getAuthor());
                 result.addKeyValue("subject", info.getSubject());
                 result.addKeyValue("keywords", info.getKeywords());
-                if (info.getCreator() != null) {
-                    result.creatingApplicationNames.add(info.getCreator());
-                }
-                if (info.getProducer() != null) {
-                    result.creatingApplicationNames.add(info.getProducer());
+                if (info.getCreator() != null && info.getProducer() != null) {
+                    result.creatingApplicationName = info.getProducer() + "/" + info.getCreator();
+                } else {
+                    if (info.getCreator() != null) {
+                        result.creatingApplicationName = info.getCreator();
+                    }
+                    if (info.getProducer() != null) {
+                        result.creatingApplicationName = info.getProducer();
+                    }
                 }
                 if (info.getCreationDate() != null) {
                     final DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);

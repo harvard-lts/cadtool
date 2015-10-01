@@ -79,7 +79,7 @@ public class X3dExtractor extends CadExtractor {
                     switch(name) {
                         case "creator": result.authors.add(value); break;
                         case "identifier": result.uniqueId = value; break;
-                        case "generator": result.creatingApplicationNames.add(value); break;
+                        case "generator": result.creatingApplicationName = value; break;
                         case "description": result.descriptions.add(value); break;
                         case "title": result.titles.add(value); break;
                         case "modified": result.modificationDate = reformatDate(value); break;
