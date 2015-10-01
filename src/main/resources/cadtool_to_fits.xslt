@@ -38,8 +38,56 @@
                 </xsl:for-each>
                 <!-- copyrightNote?, -->
             </fileinfo>
-            <!-- file status valid or well-formed? -->
-            <!-- http://hul.harvard.edu/ois/xml/xsd/fits/fits_output.xsd -->
+            <metadata>
+                <cad>
+                    <xsl:for-each select="/cad-tool-result/embedded-3d-content">
+                        <embedded-3d-content>
+                            <xsl:attribute name="type" select="@type"/>
+                            <xsl:attribute name="bytes" select="@bytes"/>
+                        </embedded-3d-content>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/pdf-3d-annotation">
+                        <pdf-3d-annotation>
+                            <xsl:value-of select="."/>
+                        </pdf-3d-annotation>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/unique-id">
+                        <unique-id>
+                            <xsl:value-of select="."/>
+                        </unique-id>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/author">
+                        <author>
+                            <xsl:value-of select="."/>
+                        </author>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/title">
+                        <title>
+                            <xsl:value-of select="."/>
+                        </title>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/description">
+                        <description>
+                            <xsl:value-of select="."/>
+                        </description>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/measurement-system">
+                        <measurement-system>
+                            <xsl:value-of select="."/>
+                        </measurement-system>
+                    </xsl:for-each>
+                    <xsl:for-each select="/cad-tool-result/extent">
+                        <Extent>
+                            <xsl:for-each select="./dimension">
+                                <Dimension>
+                                    <xsl:attribute name="magnitude" select="@magnitude"/>
+                                    <xsl:attribute name="axis" select="@axis"/>
+                                </Dimension>
+                            </xsl:for-each>
+                        </Extent>
+                    </xsl:for-each>
+                </cad>
+            </metadata>
         </fits>
     </xsl:template>
 </xsl:stylesheet>
