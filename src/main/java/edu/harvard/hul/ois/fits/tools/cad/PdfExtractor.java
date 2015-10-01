@@ -20,8 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Isaac Simmons on 8/27/2015.
@@ -112,10 +111,12 @@ public class PdfExtractor extends CadExtractor {
                 }
                 if (info.getCreationDate() != null) {
                     final DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);
+                    df.setTimeZone(TimeZone.getTimeZone("UTC"));
                     result.creationDate = df.format(info.getCreationDate().getTime());
                 }
                 if (info.getModificationDate() != null) {
                     final DateFormat df = new SimpleDateFormat(CadTool.PREFERRED_DATE_FORMAT);
+                    df.setTimeZone(TimeZone.getTimeZone("UTC"));
                     result.modificationDate = df.format(info.getModificationDate().getTime());
                 }
             } catch (IOException ex) {
