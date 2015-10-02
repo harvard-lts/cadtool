@@ -265,6 +265,7 @@ public class DxfExtractor extends CadExtractor {
             result.addKeyValue("unique-version-id", versionId);
         }
 
+        //For more values, see http://www.autodesk.com/techpubs/autocad/acad2000/dxf/header_section_group_codes_dxf_02.htm
 
 ////        And all the rest of the vaules
 //        for (Map.Entry<String, List<String>> entry: entries.entrySet()) {
