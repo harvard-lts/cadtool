@@ -1,5 +1,7 @@
 # CADTool #
 
+## **NOTE: This tool is out-of-date and currently not supported**
+
 This is a tool to perform identification, validation and metadata extraction on a limited set of CAD file formats.
 It is designed to work with [FITS](http://projects.iq.harvard.edu/fits).
 
